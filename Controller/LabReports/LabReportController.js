@@ -27,7 +27,6 @@ const uploadReportFiles = async (req, res, next) => {
   );
   try {
     const { user, doctor, typeId } = req.body;
-    console.log("🚀 ~  ~ user:", user);
     const labReport = new LabReport({
       user,
       doctor,
@@ -78,7 +77,6 @@ const getReport = async (req, res, next) => {
 
     const filePath = path.join( __dirname,"../../FilesUploaded/LabReports/"+reportId);
     const a = fs.existsSync(filePath);
-    console.log("🚀 ~ ~ getReport ~ a:", a);
     // Check if the file exists before sending it
     if (fs.existsSync(filePath)) {
       console.log("Before res.sendFile");

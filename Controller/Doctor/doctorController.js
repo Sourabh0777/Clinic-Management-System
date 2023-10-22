@@ -1,15 +1,20 @@
 const Doctor = require("../../Models/DoctorModel");
 const HttpError = require("../../Models/http-error");
+const path = require("path");
+const { v4: uuidv4 } = require("uuid");
+const fs = require("fs");
+
 const {
   getDoctorService,
   createDoctorService,
 } = require("../../Services/Doctor/DoctorService");
-const { nodeEnv } = require("../../config/config");
+const { nodeEnv, uploadImagePath } = require("../../config/config");
 const { checkIfUserExists } = require("../../helpers/helperFunctions");
 const { generateAuthToken } = require("../../utils/generateAuthToken");
 const { hashPassword } = require("../../utils/hashPasswords");
 const { commonLogin } = require("../common/CommonLogin");
 const { commonGetProfile } = require("../common/commonGetProfile");
+const { pictureValidate } = require("../../utils/pictureValidate");
 
 const doctorSignup = async (req, res, next) => {
   try {
@@ -112,4 +117,65 @@ const getDoctorProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { doctorSignup, doctorLogin, getDoctorProfile };
+const changeProfilePicture = async (req, res, next) => {
+  const uploadImageAbsolutePath = path.resolve(__dirname, uploadImagePath);
+
+  try {
+    const user = req.user;
+    const picture = req.files.picture;
+    if (!req.files || !!picture === false) {
+      const err = new HttpError("No files attached", 400);
+      return next(err);
+    }
+    const validateResult = await pictureValidate(picture);
+    if (validateResult.error) {
+      const err = new HttpError(validateResult.error, 400);
+      return next(err);
+    }
+    const doctor = await Doctor.findById(user.id);
+    const pictureId = uuidv4();
+    const extension = path.extname(picture.name);
+    const pictureName = pictureId + extension;
+    const uploadPath = uploadImageAbsolutePath + "/" + pictureName;
+    picture.mv(uploadPath, function (err) {
+      if (err) {
+        const err = new HttpError("Unable to upload reports", 500);
+        return next(err);
+      }
+    });
+    const profileUrl = "/doctor/profile/picture/" + pictureName;
+    doctor.profilePictureUrl = profileUrl;
+
+    await doctor.save();
+    res.json({
+      message: "File Uploaded",
+      doctor,
+    });
+  } catch (error) {
+    const err = new HttpError("Upload profile picture.", 500);
+    return next(error || err);
+  }
+};
+const getProfilePicture = async (req, res, next) => {
+  try {
+    const { pictureId } = req.params;
+    const filePath = path.join( __dirname,"../../FilesUploaded/ProfilePictures/"+pictureId);
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      const err = new HttpError("Picture not found", 404);
+      return next(err);
+    }
+    res.send("Working")
+  } catch (error) {
+    const err = new HttpError("Unable to retrieve the picture", 500);
+    return next(error || err);
+  }
+};
+module.exports = {
+  doctorSignup,
+  doctorLogin,
+  getDoctorProfile,
+  changeProfilePicture,
+  getProfilePicture
+};

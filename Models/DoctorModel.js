@@ -13,8 +13,10 @@ const doctorSchema = new mongoose.Schema({
   mobileNumber: {
     type: Number,
     required: [true, "Please enter contact information"],
+    unique: true,
     trim: true,
   },
+  profilePictureUrl: { type: String, trim: true },
   specializationID: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -45,10 +47,10 @@ const doctorSchema = new mongoose.Schema({
     required: [true, "Please enter a password"],
     trim: true,
   },
-  scheduleConfigID:{
+  scheduleConfigID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref:"ScheduleConfig"
-  }
+    ref: "ScheduleConfig",
+  },
 });
 
 const Doctor = mongoose.model("Doctor", doctorSchema);
