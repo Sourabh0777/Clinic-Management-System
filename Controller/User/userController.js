@@ -2,70 +2,69 @@ const Doctor = require("../../Models/DoctorModel");
 
 const User = require("../../Models/UserModel");
 const HttpError = require("../../Models/http-error");
-const { createUserService } = require("../../Services/User/userServices");
-const {
-  hashPassword,
-} = require("../../utils/hashPasswords");
-const {checkIfUserExists}=require("../../helpers/helperFunctions")
+
+//twilio
+const { twilioSid, twilioAuthToken, twilioNo } = require("../../config/config");
+const { generateRandomOTP } = require("../../config/twillio");
+const client = require("twilio")(twilioSid, twilioAuthToken);
+
+let OTP, mobileNumber;
 const UserSignUp = async (req, res, next) => {
   try {
-    const {
-      firstName,
-      lastName,
-      gender,
-      dateOfBirth,
-      mobileNumber,
-      otherContactNo,
-      state,
-      address,
-      emailAddress,
-      password,
-    } = req.body;
-    if (
-      !(
-        firstName &&
-        lastName &&
-        gender &&
-        dateOfBirth &&
-        mobileNumber &&
-        otherContactNo &&
-        state &&
-        address &&
-        emailAddress &&
-        password
-      )
-    ) {
-      throw new HttpError("All input fields are required", 422);
+    mobileNumber = req.body;
+    if (!mobileNumber) {
+      throw new HttpError("Enter your mobile no.", 422);
     }
-    await checkIfUserExists("User", emailAddress);
-    const hashedPassword = await hashPassword(password);
+    const mobileNoExists = await User.findOne({ mobileNumber: mobileNumber });
+    if (mobileNoExists) {
+      const error = new HttpError(
+        "User already exist from this mobile no.",
+        400
+      );
+      return next(error);
+    }
+    OTP = generateRandomOTP();
 
-    const user = await createUserService({
-      firstName,
-      lastName,
-      gender,
-      dateOfBirth,
-      mobileNumber,
-      otherContactNo,
-      state,
-      address,
-      emailAddress,
-      password: hashedPassword,
+    await client.messages.create({
+      body: `Your OTP is: ${OTP}`,
+      to: `+91${mobileNumber}`,
+      from: `${twilioNo}`,
     });
-    res.status(201).json({
-      message: "User is Created",
-      userCreated: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        mobileNumber: user.mobileNumber,
-        emailAddress: user.emailAddress,
-      },
-    });
+
+    res.send("Message Sent");
   } catch (error) {
     const err = new HttpError("Error created while sign up", 400);
     return next(error || err);
   }
 };
+const UserSignUpVerify = async (req, res, next) => {
+  try {
+    const { otp } = req.body;
+    res.send("Working");
+  } catch (error) {
+    const err = new HttpError("unable to login", 500);
+    return next(error || err);
+  }
+};
+const UserLogin = async (req, res, next) => {
+  try {
+    const { mobileNumber } = req.body;
+
+    const otp = generateRandomOTP();
+    console.log("🚀 ~ file: userController.js:77 ~ UserLogin ~ otp:", otp);
+
+    await client.messages.create({
+      body: `Your OTP is: ${otp}`,
+      from: "+1 415 403 2525",
+      to: mobileNumber,
+    });
+    res.send("Message Sent");
+  } catch (error) {
+    const err = new HttpError("unable to login", 500);
+    return next(error || err);
+  }
+};
+
 const doctorsList = async (req, res, next) => {
   try {
     const doctorsList = await Doctor.find({}).select().orFail();
@@ -93,4 +92,10 @@ const selectedDoctorSchedule = async (req, res, next) => {
   }
 };
 
-module.exports = { UserSignUp, doctorsList, selectedDoctorSchedule };
+module.exports = {
+  UserSignUp,
+  doctorsList,
+  selectedDoctorSchedule,
+  UserLogin,
+  UserSignUpVerify,
+};

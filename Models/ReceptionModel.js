@@ -22,6 +22,7 @@ const receptionSchema = new mongoose.Schema({
     required: [true, "Please enter a password"],
     trim: true,
   },
+  profilePictureUrl: { type: String, trim: true },
 });
 
 const Reception = mongoose.model("Reception", receptionSchema);

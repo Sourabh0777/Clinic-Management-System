@@ -23,6 +23,13 @@ const userSchema = new mongoose.Schema(
     mobileNumber: {
       type: Number,
       required: [true, "Please enter contact information"],
+      unique: true,
+      trim: true,
+    },
+    otp: {
+      type: Number,
+      required: [true, "Please enter contact information"],
+      trim: true,
     },
     otherContactNo: {
       type: String,
@@ -37,16 +44,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please enter the address"],
       trim: true,
-    },
-    emailAddress: {
-      type: String,
-      required: [true, "Please enter an emailAddress address"],
-      unique: true, // Ensure emailAddresss are unique
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: [true, "Please enter a password"],
     },
     prescriptions: [
       {

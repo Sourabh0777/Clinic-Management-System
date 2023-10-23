@@ -4,7 +4,6 @@ const HttpError = require("./Models/http-error");
 const app = express();
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(fileUpload());
