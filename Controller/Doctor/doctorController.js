@@ -96,7 +96,7 @@ const doctorLogin = async (req, res, next) => {
     const login = await commonLogin(loginInput);
     if (login) {
       const { token, cookieParams, valuesPassInResponse } = login;
-      res.cookie("access_token", token, cookieParams).json({
+      return res.cookie("access_token", token, cookieParams).json({
         message: "Success user logged in.",
         user: valuesPassInResponse,
       });
@@ -159,14 +159,17 @@ const changeProfilePicture = async (req, res, next) => {
 const getProfilePicture = async (req, res, next) => {
   try {
     const { pictureId } = req.params;
-    const filePath = path.join( __dirname,"../../FilesUploaded/ProfilePictures/"+pictureId);
+    const filePath = path.join(
+      __dirname,
+      "../../FilesUploaded/ProfilePictures/" + pictureId
+    );
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath);
     } else {
       const err = new HttpError("Picture not found", 404);
       return next(err);
     }
-    res.send("Working")
+    res.send("Working");
   } catch (error) {
     const err = new HttpError("Unable to retrieve the picture", 500);
     return next(error || err);
@@ -177,5 +180,5 @@ module.exports = {
   doctorLogin,
   getDoctorProfile,
   changeProfilePicture,
-  getProfilePicture
+  getProfilePicture,
 };

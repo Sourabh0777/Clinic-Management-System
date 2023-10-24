@@ -26,11 +26,6 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    otp: {
-      type: Number,
-      required: [true, "Please enter contact information"],
-      trim: true,
-    },
     otherContactNo: {
       type: String,
       trim: true,
