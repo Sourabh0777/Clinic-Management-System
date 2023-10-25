@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    lastOtp: {
+      type: Number,
+      trim: true,
+    },
     otherContactNo: {
       type: String,
       trim: true,

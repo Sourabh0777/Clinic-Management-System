@@ -3,14 +3,14 @@ const Doctor = require("../../Models/DoctorModel");
 
 const User = require("../../Models/UserModel");
 const HttpError = require("../../Models/http-error");
+const Otp = require("../../Models/OtpModel");
+const { generateUserAuthToken } = require("../../utils/generateAuthToken");
 
 //twilio
-const { twilioSid, twilioAuthToken, twilioNo } = require("../../config/config");
+const { twilioSid, twilioAuthToken, twilioNo, cookieMaxAge } = require("../../config/config");
 const { generateRandomOTP } = require("../../config/twillio");
-const { generateUserAuthToken } = require("../../utils/generateAuthToken");
 const client = require("twilio")(twilioSid, twilioAuthToken);
 
-let OTP, mobileNumber;
 const UserSignUp = async (req, res, next) => {
   try {
     mobileNumber = req.body.mobileNumber;
@@ -19,26 +19,22 @@ const UserSignUp = async (req, res, next) => {
     }
     const mobileNoExists = await User.findOne({ mobileNumber: mobileNumber });
     if (mobileNoExists) {
-      const error = new HttpError(
-        "User already exist from this mobile no.",
-        400
-      );
+      const error = new HttpError("User already exist from this mobile no.",400);
       return next(error);
     }
 
-    OTP = generateRandomOTP();
-    console.log("🚀 ~ OTP:", OTP);
-    console.log("🚀 ~  twilioNo:", twilioNo);
-    console.log("🚀 ~ mobileNumber:", mobileNumber);
+    const OTP = generateRandomOTP();
+    const otp = new Otp({ otp: OTP, mobileNumber });
+    await otp.save();
+    if (!otp) {
+      const error = new HttpError("Unable to create otp,try again",400);
+      return next(error);
+    }
     const message = {
       body: `Your OTP is: ${OTP}`,
       to: `+91${mobileNumber}`,
       from: `${twilioNo}`,
     };
-    console.log(
-      "🚀 ~~ message:",
-      message
-    );
     client.messages.create(message).then((message) => {
       res.send("OTP Sent");
     });
@@ -49,11 +45,10 @@ const UserSignUp = async (req, res, next) => {
 };
 const UserSignUpVerify = async (req, res, next) => {
   try {
-    const { otp } = req.body;
-    console.log("🚀 ~  OTP:", OTP)
-
-    if (otp !== OTP) {
-      const err = new HttpError("OTP not matched", 400);
+    const { otp, mobileNumber } = req.body;
+    const OTP = await Otp.findOne({mobileNumber})
+    if (otp !== OTP.otp || mobileNumber!==OTP.mobileNumber ) {
+      const err = new HttpError("OTP or mobile no did not matched", 400);
       return next(err);
     }
     const userId = new mongoose.Types.ObjectId();
@@ -79,11 +74,10 @@ const UserSignUpVerify = async (req, res, next) => {
     return next(error || err);
   }
 };
-let loginOTP, LoginMobileNO;
 const UserLogin = async (req, res, next) => {
   try {
-    LoginMobileNO = req.body.mobileNumber;
-    const user = await User.findOne({ mobileNumber: LoginMobileNO });
+    const {mobileNumber} = req.body;
+    const user = await User.findOne({ mobileNumber: mobileNumber });
     if (!user) {
       const error = new HttpError(
         "No user exists from this mobile no, Sign up",
@@ -91,7 +85,9 @@ const UserLogin = async (req, res, next) => {
       );
       return next(error);
     }
-    loginOTP = generateRandomOTP();
+    const OTP = generateRandomOTP();
+    user.lastOtp= OTP
+    await user.save()
     await client.messages.create({
       body: `Your OTP is: ${loginOTP}`,
       to: `+91${LoginMobileNO}`,
@@ -105,20 +101,19 @@ const UserLogin = async (req, res, next) => {
 };
 const UserLoginVerify = async (req, res, next) => {
   try {
-    const { otp, doNotLogout } = req.body;
-    if (otp !== loginOTP) {
-      const err = new HttpError("OTP not matched", 400);
-      return next(err);
-    }
-    const user = await User.findOne({ mobileNumber: LoginMobileNO });
+    const {mobileNumber, otp, doNotLogout } = req.body;
+
+    const user = await User.findOne({ mobileNumber: mobileNumber });
     if (!user) {
       const error = new HttpError(
         "No user exists from this mobile no, Sign up",
         400
       );
     }
-    console.log("user:", user);
-
+    if (otp !== user.lastOtp) {
+      const err = new HttpError("OTP not matched", 400);
+      return next(err);
+    }
     const jwtToken = generateUserAuthToken({ id: user.id, mobileNumber });
     let cookieParams = {
       httpOnly: true,
