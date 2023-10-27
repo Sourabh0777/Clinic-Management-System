@@ -7,7 +7,7 @@ const Otp = require("../../Models/OtpModel");
 const { generateUserAuthToken } = require("../../utils/generateAuthToken");
 
 //twilio
-const { twilioSid, twilioAuthToken, twilioNo, cookieMaxAge } = require("../../config/config");
+const { twilioSid, twilioAuthToken, twilioNo, cookieMaxAge, nodeEnv } = require("../../config/config");
 const { generateRandomOTP } = require("../../config/twillio");
 const client = require("twilio")(twilioSid, twilioAuthToken);
 
@@ -45,10 +45,21 @@ const UserSignUp = async (req, res, next) => {
 };
 const UserSignUpVerify = async (req, res, next) => {
   try {
-    const { otp, mobileNumber } = req.body;
+    const { otp, mobileNumber } =await req.body;
+    console.log("🚀 ~~ otp:", otp)
     const OTP = await Otp.findOne({mobileNumber})
-    if (otp !== OTP.otp || mobileNumber!==OTP.mobileNumber ) {
-      const err = new HttpError("OTP or mobile no did not matched", 400);
+
+    if (otp !== OTP.otp ) {
+      const err = new HttpError("OTP no did not matched", 400);
+      return next(err);
+    }
+    if ( mobileNumber!==OTP.mobileNumber) {
+      const err = new HttpError("Mobile number no did not matched", 400);
+      return next(err);
+    }
+    const userExists = await User.findOne({mobileNumber})
+    if (userExists) {
+    const err = new HttpError("User already exists, try to login", 400);
       return next(err);
     }
     const userId = new mongoose.Types.ObjectId();
@@ -70,6 +81,7 @@ const UserSignUpVerify = async (req, res, next) => {
         user,
       });
   } catch (error) {
+    console.log("🚀 ~ ~ error:", error)
     const err = new HttpError("unable to login", 500);
     return next(error || err);
   }
@@ -89,8 +101,8 @@ const UserLogin = async (req, res, next) => {
     user.lastOtp= OTP
     await user.save()
     await client.messages.create({
-      body: `Your OTP is: ${loginOTP}`,
-      to: `+91${LoginMobileNO}`,
+      body: `Your OTP is: ${OTP}`,
+      to: `+91${user.mobileNumber}`,
       from: `${twilioNo}`,
     });
     res.send("Message Sent");
@@ -124,7 +136,7 @@ const UserLoginVerify = async (req, res, next) => {
       cookieParams = { ...cookieParams, maxAge: cookieMaxAge };
     }
 
-    return res.cookie("access_token", jwtToken, cookieParams).json({
+    return res.cookie("UserAccess_token", jwtToken, cookieParams).json({
       message: "User logged in.",
       user,
     });

@@ -3,22 +3,18 @@ const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: [true, "Please enter the first name"],
       trim: true,
     },
     lastName: {
       type: String,
-      required: [true, "Please enter the last name"],
       trim: true,
     },
     gender: {
       type: String,
       enum: ["Male", "Female", "Other"],
-      required: [true, "Please select a gender"],
     },
     dateOfBirth: {
       type: Date,
-      required: [true, "Please enter the date of birth"],
     },
     mobileNumber: {
       type: Number,
@@ -36,12 +32,10 @@ const userSchema = new mongoose.Schema(
     },
     state: {
       type: String,
-      required: [true, "Please enter the state"],
       trim: true,
     },
     address: {
       type: String,
-      required: [true, "Please enter the address"],
       trim: true,
     },
     prescriptions: [
