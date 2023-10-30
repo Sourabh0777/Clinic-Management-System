@@ -5,6 +5,8 @@ const path = require("path");
 const { uploadReportsDirectoryPath, baseUrl } = require("../../config/config");
 const ReportType = require("../../Models/ReportTypeModel");
 const LabReport = require("../../Models/LabReportModel");
+const fs = require("fs");
+
 const createReportType = async (req, res, next) => {
   try {
     const { typeName } = req.body;
@@ -18,7 +20,6 @@ const createReportType = async (req, res, next) => {
     return next(error || err);
   }
 };
-const fs = require("fs");
 
 const uploadReportFiles = async (req, res, next) => {
   const uploadReportsDirectory = path.resolve(
@@ -26,11 +27,12 @@ const uploadReportFiles = async (req, res, next) => {
     uploadReportsDirectoryPath
   );
   try {
-    const { user, doctor, typeId } = req.body;
+    const { user, doctor, typeId ,createdDate} = req.body;
     const labReport = new LabReport({
       user,
       doctor,
       typeId,
+      createdDate
     });
 
     const reports = req.files.reports;
