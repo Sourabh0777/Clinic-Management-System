@@ -5,8 +5,8 @@ const generateAuthToken = ({ id, name, email, operatorType, password }) => {
   const values = { id, name, email, operatorType, password };
   return jwt.sign(values, secretKey, jwtExpiresIn);
 };
-const generateUserAuthToken = ({ mobileNo,id }) => {
-  const values = {mobileNo,id};
+const generateUserAuthToken = ({ id,mobileNo }) => {
+  const values = {id,mobileNo};
   return jwt.sign(values, secretKey, jwtExpiresIn);
 };
 module.exports = { generateAuthToken, generateUserAuthToken };

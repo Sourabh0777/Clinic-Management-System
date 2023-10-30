@@ -79,9 +79,7 @@ const getReport = async (req, res, next) => {
     const a = fs.existsSync(filePath);
     // Check if the file exists before sending it
     if (fs.existsSync(filePath)) {
-      console.log("Before res.sendFile");
       res.sendFile(filePath);
-      console.log("After res.sendFile");
     } else {
       const err = new HttpError("Report not found", 404);
       return next(err);

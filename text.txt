@@ -7,5 +7,6 @@ const uploadReports = async (req, res, next) => {
     return next(error || err);
   }
 };
+const user = req.user
 module.exports = {uploadReports};
 //w2#P9@L$x5Q7j#Kp

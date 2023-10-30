@@ -52,4 +52,4 @@ const User = mongoose.model("User", userSchema);
 
 module.exports = User;
 //Schema Short hand
-// firstName , lastName , gender , dateOfBirth ,mobileNumber , medicalHistory, otherContactNo ,  state, address, emailAddress, password
+// firstName , lastName , gender , dateOfBirth ,mobileNumber , otherContactNo ,  state, address, emailAddress, password
