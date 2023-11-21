@@ -9,6 +9,7 @@ const jwtExpiresIn = { expiresIn: "7h" };
 const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
 const uploadReportsDirectoryPath = "../../FilesUploaded/LabReports";
 const uploadImagePath = "../../FilesUploaded/ProfilePictures";
+const uploadPrescriptionPath =  "../../FilesUploaded/Prescriptions"
 const baseUrl = "http://localhost:5000/"; // Replace with your server's address
 //Twilio
 const twilioSid = process.env.TWILIOSID;
@@ -29,4 +30,5 @@ module.exports = {
   twilioSid,
   twilioAuthToken,
   twilioNo,
+  uploadPrescriptionPath
 };

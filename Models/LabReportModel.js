@@ -6,6 +6,7 @@ const labReportSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     doctor: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor" },
     reception: { type: mongoose.Schema.Types.ObjectId, ref: "Reception" },
@@ -15,7 +16,7 @@ const labReportSchema = new mongoose.Schema(
       required: true,
     },
     url: [{ type: String, required: true }],
-    createdDate: { type: Date, default: Date.now },
+    createdDate: { type: Date, default: Date.now ,index: true},
   },
   {
     timestamps: true,

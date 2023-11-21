@@ -6,6 +6,9 @@ const {
   doctorLogin,
   changeProfilePicture,
   getProfilePicture,
+  getSchedule,
+  getAppointment,
+  getPrescription,
 } = require("../Controller/Doctor/doctorController");
 const {
   addSpecialization,
@@ -27,6 +30,9 @@ router.post("/createSchedule", createInitialSchedule);
 router.post("/specialization", addSpecialization);
 router.put("/profile/picture", changeProfilePicture);
 router.get("/profile/picture/:pictureId", getProfilePicture);
+router.get("/schedule", getSchedule);
+router.get("/appointment/:id", getAppointment);
+router.get("/prescription/:id", getPrescription);
 
 //Specialization
 module.exports = router;

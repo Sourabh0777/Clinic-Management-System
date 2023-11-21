@@ -42,7 +42,7 @@ const appointmentSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "pending",
-      enum: ["pending", "completed"],
+      enum: ["pending","Active", "completed","canceled"],
     },
     consultationFee: { type: Number },
     paymentStatus: { type: String, enum: ["Paid", "Unpaid"] },

@@ -1,5 +1,18 @@
 const mongoose = require("mongoose");
-
+const vitalsSchema = new mongoose.Schema({
+  bloodPressure: {
+    type: String,
+  },
+  heartRate: {
+    type: Number,
+  },
+  temperature: {
+    type: Number,
+  },
+  respiratoryRate: {
+    type: Number,
+  },
+});
 const prescriptionSchema = new mongoose.Schema({
   appointmentId: {
     type: String,
@@ -14,12 +27,13 @@ const prescriptionSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  canvas: {
+  prescriptionUrl: {
     type: String,
   },
   vitals: {
-    type: String,
+    type: vitalsSchema
   },
+  isLocked:{type:Boolean, default:false},
   previousPrescriptions: {
     type: String,
   },

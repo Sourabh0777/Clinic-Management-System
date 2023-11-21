@@ -1,9 +1,9 @@
 const uploadReports = async (req, res, next) => {
   try {
     const { id } = req.body;
-    res.send("Working")
+    return res.send("Working")
   } catch (error) {
-    const err = new HttpError("unable to login", 500);
+    const err = new HttpError("Unable to xasdasd", 500);
     return next(error || err);
   }
 };

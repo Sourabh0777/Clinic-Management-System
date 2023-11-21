@@ -1,18 +1,32 @@
 const Reception = require("../../Models/ReceptionModel");
 const HttpError = require("../../Models/http-error");
+const Prescription = require("../../Models/PrescriptionModel");
+const Appointment = require("../../Models/AppointmentModel");
+
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
-const { hashPassword, comparePassword } = require("../../utils/hashPasswords");
+const { hashPassword } = require("../../utils/hashPasswords");
 const {
   createReceptionService,
 } = require("../../Services/Reception/ReceptionServices");
-const { nodeEnv, uploadImagePath } = require("../../config/config");
+
+const {
+  nodeEnv,
+  uploadImagePath,
+  uploadPrescriptionPath,
+} = require("../../config/config");
 const { generateAuthToken } = require("../../utils/generateAuthToken");
 const { checkIfUserExists } = require("../../helpers/helperFunctions");
 const { commonLogin } = require("../common/CommonLogin");
 const { commonGetProfile } = require("../common/commonGetProfile");
 const { pictureValidate } = require("../../utils/pictureValidate");
+const {
+  commonGetDoctorList,
+  commonGetDoctorProfile,
+  commonGetDoctorScheduleByScheduleId,
+} = require("../common/CommonDoctor");
+const { commonGetAppointmentById } = require("../common/CommonAppointment");
 const receptionSignup = async (req, res, next) => {
   try {
     const { firstName, lastName, emailAddress, password } = req.body;
@@ -93,7 +107,7 @@ const changeProfilePicture = async (req, res, next) => {
   try {
     const user = req.user;
     const picture = req.files.picture;
-    console.log("🚀 ~  picture:", picture)
+    console.log("🚀 ~picture:", picture);
     if (!req.files || !!picture === false) {
       const err = new HttpError("No files attached", 400);
       return next(err);
@@ -123,7 +137,10 @@ const changeProfilePicture = async (req, res, next) => {
       reception,
     });
   } catch (error) {
-    console.log("🚀 ~ file: receptionController.js:125 ~ changeProfilePicture ~ error:", error)
+    console.log(
+      "🚀 ~ file: receptionController.js:125 ~ changeProfilePicture ~ error:",
+      error
+    );
     const err = new HttpError("Upload profile picture.", 500);
     return next(error || err);
   }
@@ -135,9 +152,9 @@ const getProfilePicture = async (req, res, next) => {
       __dirname,
       "../../FilesUploaded/ProfilePictures/" + pictureId
     );
-    console.log("🚀 ~ file: receptionController.js:138 ~ getProfilePicture ~ filePath:", filePath)
+
     if (fs.existsSync(filePath)) {
-      res.sendFile(filePath);
+      return res.sendFile(filePath);
     } else {
       const err = new HttpError("Picture not found", 404);
       return next(err);
@@ -148,10 +165,123 @@ const getProfilePicture = async (req, res, next) => {
     return next(error || err);
   }
 };
+
+const getDoctorList = async (req, res, next) => {
+  try {
+    const doctorProfile = await commonGetDoctorList();
+    res.json({ message: "Success", doctorProfile });
+  } catch (error) {
+    const err = new HttpError("Unable fetch doctor list", 500);
+    return next(err);
+  }
+};
+const getDoctorProfile = async (req, res, next) => {
+  try {
+    const doctorProfile = await commonGetDoctorProfile(req.params.id);
+    res.json({ message: "Success", doctorProfile });
+  } catch (error) {
+    const err = new HttpError("Unable find doctor profile", 500);
+    return next(err);
+  }
+};
+const getDoctorSchedule = async (req, res, next) => {
+  try {
+    const schedule = await commonGetDoctorScheduleByScheduleId(req.params.id);
+    res.json({ message: "Success", schedule });
+  } catch (error) {
+    const err = new HttpError("unable to login", 500);
+    return next(error || err);
+  }
+};
+const getAppointmentDetails = async (req, res, next) => {
+  try {
+    const appointment = await commonGetAppointmentById(req.params.id);
+    res.json({ message: "Success", appointment });
+  } catch (error) {
+    const err = new HttpError("Unable to fetch appointment.", 500);
+    return next(error || err);
+  }
+};
+
+const updateVitals = async (req, res, next) => {
+  const uploadFileAbsolutePath = path.resolve(
+    __dirname,
+    uploadPrescriptionPath
+  );
+  try {
+    const { bloodPressure, heartRate, temperature, respiratoryRate } = req.body;
+    const vitals = { bloodPressure, heartRate, temperature, respiratoryRate };
+    const prescription = await Prescription.findById(req.params.id);
+    prescription.vitals = vitals;
+    const prescriptionFile = req.files.prescription;
+    if (!req.files || !!prescriptionFile === false) {
+      const err = new HttpError("No files attached", 400);
+      return next(err);
+    }
+    const prescriptionFileId = uuidv4();
+    const extension = path.extname(prescriptionFile.name);
+    const prescriptionFileName = prescriptionFileId + extension;
+    const uploadPath = uploadFileAbsolutePath + "/" + prescriptionFileName;
+    prescriptionFile.mv(uploadPath, function (err) {
+      if (err) {
+        const err = new HttpError("Unable to upload reports", 500);
+        return next(err);
+      }
+    });
+    const prescriptionUrl = "/prescription/" + prescriptionFileName;
+    prescription.prescriptionUrl = prescriptionUrl;
+    const appointmentId= prescription.appointmentId;
+    const appointment = await Appointment.findById(appointmentId)
+    appointment.status= "onGoing"
+    await appointment.save()
+    await prescription.save();
+    res.json({ message: "Success", prescription });
+  } catch (error) {
+    const err = new HttpError("Unable to update vitals.", 500);
+    return next(error || err);
+  }
+};
+const getPrescriptionFileById = async (req, res, next) => {
+  try {
+    const { prescriptionFile } = req.params;
+    const filePath = path.join(
+      __dirname,
+      "../../FilesUploaded/Prescriptions/" + prescriptionFile
+    );
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    } else {
+      const err = new HttpError("File not found", 404);
+      return next(err);
+    }
+  } catch (error) {
+    const err = new HttpError("unable to fetch doctor list", 500);
+    throw error || err;
+  }
+};
+
+const cancelAppointment = async (req, res, next) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id);
+    appointment.status= "canceled"
+    await appointment.save()
+    res.json({message:"Appointment is cancelled",appointment})
+  } catch (error) {
+    const err = new HttpError("Unable to cancel appointment.", 500);
+    return next(error || err);
+  }
+};
 module.exports = {
   receptionSignup,
   receptionLogin,
   getReceptionProfile,
   changeProfilePicture,
   getProfilePicture,
+  getDoctorList,
+  getDoctorProfile,
+  getDoctorSchedule,
+  getAppointmentDetails,
+  updateVitals,
+  getPrescriptionFileById,
+  cancelAppointment
 };

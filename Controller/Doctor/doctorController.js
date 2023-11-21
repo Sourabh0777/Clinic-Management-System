@@ -1,8 +1,11 @@
 const Doctor = require("../../Models/DoctorModel");
 const HttpError = require("../../Models/http-error");
+const ScheduleConfig = require("../../Models/ScheduleConfigModel");
+const Prescription = require("../../Models/PrescriptionModel");
+const fs = require("fs");
+
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-const fs = require("fs");
 
 const {
   getDoctorService,
@@ -15,6 +18,7 @@ const { hashPassword } = require("../../utils/hashPasswords");
 const { commonLogin } = require("../common/CommonLogin");
 const { commonGetProfile } = require("../common/commonGetProfile");
 const { pictureValidate } = require("../../utils/pictureValidate");
+const { commonGetAppointmentById } = require("../common/CommonAppointment");
 
 const doctorSignup = async (req, res, next) => {
   try {
@@ -97,7 +101,7 @@ const doctorLogin = async (req, res, next) => {
     if (login) {
       const { token, cookieParams, valuesPassInResponse } = login;
       return res.cookie("access_token", token, cookieParams).json({
-        message: "Success user logged in.",
+        message: "User logged in.",
         user: valuesPassInResponse,
       });
     }
@@ -175,10 +179,48 @@ const getProfilePicture = async (req, res, next) => {
     return next(error || err);
   }
 };
+
+const getSchedule = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const doctor = await Doctor.findById(user.id);
+    const schedule = await ScheduleConfig.findById(
+      doctor.scheduleConfigID
+    ).orFail();
+    return res.json({ message: "Success", schedule });
+  } catch (error) {
+    const err = new HttpError("Unable to get schedule", 500);
+    return next(error || err);
+  }
+};
+
+const getAppointment = async (req, res, next) => {
+  try {
+    const appointment = await commonGetAppointmentById(req.params.id);
+    return res.json({ message: "Success", appointment });
+  } catch (error) {
+    const err = new HttpError("Unable to xasdasd", 500);
+    return next(error || err);
+  }
+};
+
+const getPrescription = async (req, res, next) => {
+  try {
+    const prescription = await Prescription.findById(req.params.id).orFail();
+    console.log("🚀 ~prescription:", prescription)
+    return res.json({message:"Success",prescription});
+  } catch (error) {
+    const err = new HttpError("Unable to xasdasd", 500);
+    return next(error || err);
+  }
+};
 module.exports = {
   doctorSignup,
   doctorLogin,
   getDoctorProfile,
   changeProfilePicture,
   getProfilePicture,
+  getSchedule,
+  getAppointment,
+  getPrescription,
 };

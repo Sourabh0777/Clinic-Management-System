@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Doctor = require("../../Models/DoctorModel");
-
+const Appointment = require("../../Models/AppointmentModel");
 const User = require("../../Models/UserModel");
 const HttpError = require("../../Models/http-error");
 const Otp = require("../../Models/OtpModel");
@@ -15,6 +15,7 @@ const {
   nodeEnv,
 } = require("../../config/config");
 const { generateRandomOTP } = require("../../config/twillio");
+const LabReport = require("../../Models/LabReportModel");
 const client = require("twilio")(twilioSid, twilioAuthToken);
 
 const UserSignUp = async (req, res, next) => {
@@ -71,7 +72,7 @@ const UserSignUpVerify = async (req, res, next) => {
       const err = new HttpError("User already exists, try to login", 400);
       return next(err);
     }
-    const userId = new mongoose.Types.ObjectId();
+    const id = new mongoose.Types.ObjectId();
     const user = await User.create({
       _id: userId,
       mobileNumber: mobileNumber,
@@ -169,7 +170,7 @@ const selectedDoctorSchedule = async (req, res, next) => {
     const doctorId = req.params.id;
     const doctor = await Doctor.findOne({ _id: doctorId })
       .select("-password")
-      .populate("scheduleConfigID")
+      .populate("scheduleConfigID specializationID")
       .orFail();
     res.json({ message: "success", doctor });
   } catch (error) {
@@ -211,8 +212,8 @@ const updateUSerProfile = async (req, res, next) => {
 const getUserProfile = async (req, res, next) => {
   const { id } = req.user;
   try {
-    const user = await User.findById(id).select('-lastOtp').orFail();
-    res.json({message:"Success",user});
+    const user = await User.findById(id).select("-lastOtp").orFail();
+    res.json({ message: "Success", user });
   } catch (error) {
     const err = new HttpError("unable fetch user profile", 500);
     return next(error || err);
@@ -221,7 +222,7 @@ const getUserProfile = async (req, res, next) => {
 const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.user;
-    const result  = await User.deleteOne({_id:id})
+    const result = await User.deleteOne({ _id: id });
     if (result.deletedCount === 1) {
       return res.json({ message: "User deleted" });
     } else {
@@ -230,6 +231,51 @@ const deleteUser = async (req, res, next) => {
     }
   } catch (error) {
     const err = new HttpError("Unable to delete user", 500);
+    return next(error || err);
+  }
+};
+
+const getLabReports = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const { fromDate, toDate, page } = req.query;
+    const itemsPerPage = 5;
+    const query = {
+      user: id,
+    };
+
+    // Add date filtering if 'fromDate' and 'toDate' are provided
+    if (fromDate && toDate) {
+      query.createdDate = {
+        $gte: new Date(fromDate),
+        $lte: new Date(toDate),
+      };
+    }
+    console.log("🚀 ~ query:", query);
+    const skip = (page - 1) * itemsPerPage;
+    let sortOptions = { createdDate: -1 };
+    const labReports = await LabReport.find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(itemsPerPage);
+
+    return res.json({ labReports });
+  } catch (error) {
+    const err = new HttpError("Unable to fetch lab reports", 500);
+    return next(error || err);
+  }
+};
+
+const getUserAppointments = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const appointments = await Appointment.find({ user: id });
+    if (!appointments) {
+      return res.json("No reports found.");
+    }
+    return res.json({ message: "Success", appointments });
+  } catch (error) {
+    const err = new HttpError("Unable to xasdasd", 500);
     return next(error || err);
   }
 };
@@ -242,5 +288,7 @@ module.exports = {
   UserLoginVerify,
   updateUSerProfile,
   getUserProfile,
-  deleteUser
+  deleteUser,
+  getLabReports,
+  getUserAppointments,
 };

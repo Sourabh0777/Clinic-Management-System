@@ -66,7 +66,6 @@ const createAppointment = async (req, res, next) => {
     const timeSlotIndex = scheduleConfig.availability
       .flatMap((availabilitySlot) => availabilitySlot.timeSlots)
       .findIndex((ts) => ts._id.toString() === timeSlot);
-
     if (timeSlotIndex !== -1) {
       // Update the `ts` object with the appointment ID and status
       scheduleConfig.availability.flatMap(
