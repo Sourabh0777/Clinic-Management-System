@@ -114,7 +114,7 @@ const getDoctorProfile = async (req, res, next) => {
   try {
     const user = req.user;
     const profile = await commonGetProfile(user);
-    return res.send(profile);
+    return res.json({message:"Success",profile});
   } catch (error) {
     const err = new HttpError("Unable to get doctor profile", 500);
     return next(error || err);

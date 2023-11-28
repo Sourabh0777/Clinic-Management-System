@@ -1,4 +1,6 @@
 const express = require("express");
+const cors = require("cors");
+
 const routes = require("./Routes/api.routes");
 const HttpError = require("./Models/http-error");
 const app = express();
@@ -7,6 +9,8 @@ const fileUpload = require("express-fileupload");
 app.use(cookieParser());
 app.use(express.json());
 app.use(fileUpload());
+app.use(cors());
+
 app.get("/test",(req,res)=>{
   res.sendFile(__dirname)
 })

@@ -269,11 +269,29 @@ const getLabReports = async (req, res, next) => {
 const getUserAppointments = async (req, res, next) => {
   try {
     const { id } = req.user;
-    const appointments = await Appointment.find({ user: id });
+    const appointments = await Appointment.find({ user: id })
+      .populate({
+        path: "user",
+        select: "firstName lastName ",
+      })
+      .populate({ path: "doctor", select: "firstName lastName mobileNumber" })
+      .populate({
+        path: "timeSlotId",
+      });
     if (!appointments) {
       return res.json("No reports found.");
     }
     return res.json({ message: "Success", appointments });
+  } catch (error) {
+    const err = new HttpError("Unable to xasdasd", 500);
+    return next(error || err);
+  }
+};
+const UserTest = async (req, res, next) => {
+  console.log("working");
+  try {
+    const { id } = req.body;
+    return res.json({ message: "Working" });
   } catch (error) {
     const err = new HttpError("Unable to xasdasd", 500);
     return next(error || err);
@@ -291,4 +309,5 @@ module.exports = {
   deleteUser,
   getLabReports,
   getUserAppointments,
+  UserTest,
 };

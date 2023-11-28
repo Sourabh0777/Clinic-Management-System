@@ -1,6 +1,7 @@
 const Appointment = require("../../Models/AppointmentModel");
 const Prescription = require("../../Models/PrescriptionModel");
 const ScheduleConfig = require("../../Models/ScheduleConfigModel");
+const TimeSlot = require("../../Models/TimeSlotModel");
 const HttpError = require("../../Models/http-error");
 const mongoose = require("mongoose");
 
@@ -15,7 +16,7 @@ const createAppointment = async (req, res, next) => {
       reception,
       modeOfAppointment,
       appointmentDate,
-      timeSlot,
+      timeSlotId,
       appointmentType,
       status,
       consultationFee,
@@ -26,7 +27,7 @@ const createAppointment = async (req, res, next) => {
       nextCheckupDate,
     } = req.body;
 
-    if (!(user && doctor && appointmentDate && timeSlot && appointmentType)) {
+    if (!(user && doctor && appointmentDate && timeSlotId && appointmentType)) {
       throw new HttpError("All input fields are required", 422);
     }
 
@@ -41,7 +42,7 @@ const createAppointment = async (req, res, next) => {
       prescription: prescriptionId,
       modeOfAppointment,
       appointmentDate,
-      timeSlot,
+      timeSlotId,
       appointmentType,
       status,
       consultationFee,
@@ -59,26 +60,15 @@ const createAppointment = async (req, res, next) => {
       user: user,
       appointmentId: appointment._id, // Update the appointmentId in Prescription
     });
-
-    const scheduleConfig = await ScheduleConfig.findOne({
-      "availability.timeSlots._id": timeSlot,
-    }).orFail();
-    const timeSlotIndex = scheduleConfig.availability
-      .flatMap((availabilitySlot) => availabilitySlot.timeSlots)
-      .findIndex((ts) => ts._id.toString() === timeSlot);
-    if (timeSlotIndex !== -1) {
-      // Update the `ts` object with the appointment ID and status
-      scheduleConfig.availability.flatMap(
-        (availabilitySlot) => availabilitySlot.timeSlots
-      )[timeSlotIndex].appointmentID = appointmentId;
-      scheduleConfig.availability.flatMap(
-        (availabilitySlot) => availabilitySlot.timeSlots
-      )[timeSlotIndex].status = "booked";
-
-      // Save the updated `scheduleConfig` to persist the changes
-      await scheduleConfig.save();
+    const timeSlot = await TimeSlot.findById(timeSlotId);
+    if (!timeSlot) {
+      const err = new HttpError("No time slot found", 400);
+      session.abortTransaction()
+      return next(err);
     }
-
+    timeSlot.status = "booked";
+    timeSlot.appointmentID = appointmentId;
+    await timeSlot.save();
     await session.commitTransaction();
     session.endSession();
 
@@ -94,5 +84,4 @@ const createAppointment = async (req, res, next) => {
     return next(error || err);
   }
 };
-
 module.exports = { createAppointment };

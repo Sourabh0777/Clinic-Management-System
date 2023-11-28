@@ -13,8 +13,11 @@ const {
   getUserProfile,
   deleteUser,
   getLabReports,
-  getUserAppointments
+  getUserAppointments,
+  UserTest
 } = require("../Controller/User/userController");
+router.get("/test", UserTest);
+
 router.post("/signup", UserSignUp);
 router.post("/signup/verify", UserSignUpVerify);
 
@@ -28,7 +31,6 @@ router.get("/getUserProfile", getUserProfile);
 router.get("/getLabReports", getLabReports);
 router.get("/appointments", getUserAppointments);
 // router.get("/getLabReports", getUserUpcomingAppointment);
-
 
 router.delete("/deleteUser", deleteUser);
 

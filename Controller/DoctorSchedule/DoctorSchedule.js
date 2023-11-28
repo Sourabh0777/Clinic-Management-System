@@ -1,12 +1,14 @@
 const moment = require("moment");
 const Doctor = require("../../Models/DoctorModel");
 const ScheduleConfig = require("../../Models/ScheduleConfigModel");
+const TimeSlot = require("../../Models/TimeSlotModel");
 
 const createInitialSchedule = async (req, res, next) => {
   const inputFormat = "hh:mm A";
   const outputFormat = "YYYY-MM-DDTHH:mm:ss.SSS";
 
   try {
+    //Checked
     const doctorId = req.user.id;
     let { workingDays, startTime, endTime, slotDuration } = req.body;
 
@@ -22,64 +24,84 @@ const createInitialSchedule = async (req, res, next) => {
     const formatStartTime = moment(startTime, inputFormat).format(outputFormat);
     const formatEndTime = moment(endTime, inputFormat).format(outputFormat);
 
+    //Code to be corrected
+
     const currentDate = new Date();
-    let availability = [];
+    const todaysDayOfWeek = currentDate.toLocaleString("en-us", {
+      weekday: "long",
+    });
+    let upcoming30Dates = [];
+    let next30WorkingDates = [];
     for (let i = 0; i < workingDays.length; i++) {
       const dayOfWeek = workingDays[i];
-
-      // Find the next occurrence of the specified day
-      while (
-        currentDate.toLocaleString("en-us", { weekday: "long" }) !== dayOfWeek
-      ) {
-        currentDate.setDate(currentDate.getDate() + 1);
+      //Start
+      if (todaysDayOfWeek == dayOfWeek) {
+        for (let j = 0; j < 30; j++) {
+          currentDate.setDate(currentDate.getDate() + 1);
+          const upcomingDate = new Date(currentDate);
+          upcoming30Dates.push(upcomingDate);
+        }
       }
-      // Create a date object with the correct date and time
-      const startDateAndTime = moment(currentDate)
-        .set("hour", moment(formatStartTime).hour())
-        .set("minute", moment(formatStartTime).minute())
-        .set("second", moment(formatStartTime).second())
-        .set("millisecond", moment(formatStartTime).millisecond())
-        .format(outputFormat);
+    }
+    for (let i = 0; i < upcoming30Dates.length; i++) {
+      for (let j = 0; j < workingDays.length; j++) {
+        if (
+          upcoming30Dates[i].toLocaleString("en-us", { weekday: "long" }) ==
+          workingDays[j]
+        ) {
+          const startDateAndTime = new Date(
+            moment(upcoming30Dates[i])
+              .set("hour", moment(formatStartTime).hour())
+              .set("minute", moment(formatStartTime).minute())
+              .set("second", moment(formatStartTime).second())
+              .set("millisecond", moment(formatStartTime).millisecond())
+              .format(outputFormat)
+          );
+          const endDateAndTime = new Date(
+            moment(upcoming30Dates[i])
+              .set("hour", moment(formatEndTime).hour())
+              .set("minute", moment(formatEndTime).minute())
+              .set("second", moment(formatEndTime).second())
+              .set("millisecond", moment(formatEndTime).millisecond())
+              .format(outputFormat)
+          );
+          next30WorkingDates.push({ startDateAndTime, endDateAndTime });
+        }
+      }
+    }
+    let availability = [];
 
-      const endDateAndTime = moment(currentDate)
-        .set("hour", moment(formatEndTime).hour())
-        .set("minute", moment(formatEndTime).minute())
-        .set("second", moment(formatEndTime).second())
-        .set("millisecond", moment(formatEndTime).millisecond())
-        .format(outputFormat);
-
-      // Store the start and end times in your availability array or do further processing as needed
-      const currentTimeAndDate = moment(startDateAndTime);
-      const slotEndTimeAndDate = moment(endDateAndTime);
-      const changeCurrentTimeAndDate = moment(startDateAndTime);
-
+    for (let i = 0; i < next30WorkingDates.length; i++) {
       let timeSlots = [];
 
+      const currentTimeAndDate = moment(next30WorkingDates[i].startDateAndTime);
+      const slotEndTimeAndDate = moment(next30WorkingDates[i].endDateAndTime);
+      const changeCurrentTimeAndDate = moment(
+        next30WorkingDates[i].startDateAndTime
+      );
       while (changeCurrentTimeAndDate < slotEndTimeAndDate) {
         const updatedTimeAndDate = moment(currentTimeAndDate);
-        const slotEndTime = currentTimeAndDate.add(30, "minutes");
+        const slotEndTime = currentTimeAndDate.add(30, "minutes"); // First slot end time
 
         // Convert slotEndTime and updatedTimeAndDate to the desired format
-        const slotEnd = moment(slotEndTime).format(outputFormat);
+        const slotEnd = moment(slotEndTime).format(outputFormat); // Change format for the slot end time
         const currentTime = moment(updatedTimeAndDate).format(outputFormat);
-
-        timeSlots.push({
+        const timeSlot = await TimeSlot.create({
           slotStartTime: currentTime,
           slotEndTime: slotEnd,
           status: "available",
           appointmentID: null,
         });
+        timeSlots.push(timeSlot._id);
         // Update changeCurrentTimeAndDate for the next iteration
         changeCurrentTimeAndDate.add(30, "minutes");
       }
-
       availability.push({
         date: changeCurrentTimeAndDate.format(outputFormat),
-        timeSlots,
+        timeSlots
       });
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
 
+    }
     const scheduleConfig = new ScheduleConfig({
       doctorID: doctor._id,
       workingDays,
