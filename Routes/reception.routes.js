@@ -12,18 +12,25 @@ const {
   getAppointmentDetails,
   updateVitals,
   getPrescriptionFileById,
-  cancelAppointment
+  cancelAppointment,
+  createUser
 } = require("../Controller/Reception/receptionController");
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
 const { verifyIsReception } = require("../middleware/verifyIsReception");
 
+// Sign up LOgin
 router.post("/signup", receptionSignup);
 router.post("/login", receptionLogin);
 
-router.use(verifyIsLoggedIn, verifyIsReception);
+//Verify Reception Related Api
+// router.use(verifyIsLoggedIn, verifyIsReception);
+
+//Reception Profile Related API
 router.get("/profile", getReceptionProfile);
 router.put("/profile/picture", changeProfilePicture);
 router.get("/profile/picture/:pictureId", getProfilePicture);
+
+// Get Doctor and schedule related api
 router.get("/doctorList", getDoctorList);
 router.get("/doctor/:id", getDoctorProfile);
 router.get("/schedule/:id", getDoctorSchedule);
@@ -31,5 +38,8 @@ router.get("/appointment/:id", getAppointmentDetails);
 router.put("/vitals/:id", updateVitals);
 router.get("/prescription/:prescriptionFile", getPrescriptionFileById);
 router.put("/cancelAppointment/:id", cancelAppointment);
+
+//Reception User Related API
+router.post("/createUser", createUser);
 
 module.exports = router;

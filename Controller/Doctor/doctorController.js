@@ -3,14 +3,12 @@ const HttpError = require("../../Models/http-error");
 const ScheduleConfig = require("../../Models/ScheduleConfigModel");
 const Prescription = require("../../Models/PrescriptionModel");
 const fs = require("fs");
+const Appointment = require("../../Models/AppointmentModel");
 
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
-const {
-  getDoctorService,
-  createDoctorService,
-} = require("../../Services/Doctor/DoctorService");
+const { getDoctorService, createDoctorService } = require("../../Services/Doctor/DoctorService");
 const { nodeEnv, uploadImagePath } = require("../../config/config");
 const { checkIfUserExists } = require("../../helpers/helperFunctions");
 const { generateAuthToken } = require("../../utils/generateAuthToken");
@@ -31,19 +29,13 @@ const doctorSignup = async (req, res, next) => {
       rating,
       chargesForOPDExtra,
       emailAddress,
+      language,
       password,
+      education,
+      pricePerHour,
     } = req.body;
 
-    if (
-      !firstName ||
-      !lastName ||
-      !mobileNumber ||
-      !experience ||
-      !rating ||
-      !chargesForOPDExtra ||
-      !emailAddress ||
-      !password
-    ) {
+    if (!firstName || !lastName || !mobileNumber || !experience || !rating || !chargesForOPDExtra || !emailAddress || !password) {
       throw new HttpError("All fields are required", 400);
     }
     const hashedPassword = await hashPassword(password);
@@ -58,6 +50,9 @@ const doctorSignup = async (req, res, next) => {
       chargesForOPDExtra,
       emailAddress,
       password: hashedPassword,
+      language,
+      education,
+      pricePerHour,
     });
     const values = {
       id: doctor.id,
@@ -114,7 +109,7 @@ const getDoctorProfile = async (req, res, next) => {
   try {
     const user = req.user;
     const profile = await commonGetProfile(user);
-    return res.json({message:"Success",profile});
+    return res.json({ message: "Success", profile });
   } catch (error) {
     const err = new HttpError("Unable to get doctor profile", 500);
     return next(error || err);
@@ -163,17 +158,13 @@ const changeProfilePicture = async (req, res, next) => {
 const getProfilePicture = async (req, res, next) => {
   try {
     const { pictureId } = req.params;
-    const filePath = path.join(
-      __dirname,
-      "../../FilesUploaded/ProfilePictures/" + pictureId
-    );
+    const filePath = path.join(__dirname, "../../FilesUploaded/ProfilePictures/" + pictureId);
     if (fs.existsSync(filePath)) {
-      res.sendFile(filePath);
+      return res.sendFile(filePath);
     } else {
       const err = new HttpError("Picture not found", 404);
       return next(err);
     }
-    res.send("Working");
   } catch (error) {
     const err = new HttpError("Unable to retrieve the picture", 500);
     return next(error || err);
@@ -184,9 +175,7 @@ const getSchedule = async (req, res, next) => {
   try {
     const user = req.user;
     const doctor = await Doctor.findById(user.id);
-    const schedule = await ScheduleConfig.findById(
-      doctor.scheduleConfigID
-    ).orFail();
+    const schedule = await ScheduleConfig.findById(doctor.scheduleConfigID).orFail();
     return res.json({ message: "Success", schedule });
   } catch (error) {
     const err = new HttpError("Unable to get schedule", 500);
@@ -207,10 +196,20 @@ const getAppointment = async (req, res, next) => {
 const getPrescription = async (req, res, next) => {
   try {
     const prescription = await Prescription.findById(req.params.id).orFail();
-    console.log("🚀 ~prescription:", prescription)
-    return res.json({message:"Success",prescription});
+    console.log("🚀 ~prescription:", prescription);
+    return res.json({ message: "Success", prescription });
   } catch (error) {
     const err = new HttpError("Unable to xasdasd", 500);
+    return next(error || err);
+  }
+};
+const getAppointments = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const appointments = await Appointment.find({ doctor: id }).orFail();
+    return res.json({ message: "Success", appointments });
+  } catch (error) {
+    const err = new HttpError("Unable to fetch  appointments", 500);
     return next(error || err);
   }
 };
@@ -223,4 +222,5 @@ module.exports = {
   getSchedule,
   getAppointment,
   getPrescription,
+  getAppointments,
 };

@@ -9,15 +9,12 @@ const {
   getSchedule,
   getAppointment,
   getPrescription,
+  getAppointments,
 } = require("../Controller/Doctor/doctorController");
-const {
-  addSpecialization,
-} = require("../Controller/Specialization/specializationController");
+const { addSpecialization } = require("../Controller/Specialization/specializationController");
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
 const { verifyIsDoctor } = require("../middleware/verifyIsDoctor");
-const {
-  createInitialSchedule,
-} = require("../Controller/DoctorSchedule/DoctorSchedule");
+const { createInitialSchedule } = require("../Controller/DoctorSchedule/DoctorSchedule");
 
 router.post("/signup", doctorSignup);
 router.post("/login", doctorLogin);
@@ -26,6 +23,7 @@ router.post("/login", doctorLogin);
 router.use(verifyIsLoggedIn, verifyIsDoctor);
 router.get("/profile", getDoctorProfile);
 router.post("/createSchedule", createInitialSchedule);
+router.get("/appointments", getAppointments);
 
 router.post("/specialization", addSpecialization);
 router.put("/profile/picture", changeProfilePicture);

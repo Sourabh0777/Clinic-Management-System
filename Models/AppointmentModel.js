@@ -47,7 +47,7 @@ const appointmentSchema = new mongoose.Schema(
     },
     consultationFee: { type: Number },
     paymentStatus: { type: String, enum: ["Paid", "Unpaid"] },
-    paymentMethod: { type: String, enum: ["Cash", "Card", "Online"] },
+    paymentMethod: { type: String, enum: ["Cash", "Card", "Online", "null"] },
     totalAmount: { type: Number },
     appointmentNotes: { type: String },
     nextCheckupDate: {

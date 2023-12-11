@@ -63,7 +63,7 @@ const createAppointment = async (req, res, next) => {
     const timeSlot = await TimeSlot.findById(timeSlotId);
     if (!timeSlot) {
       const err = new HttpError("No time slot found", 400);
-      session.abortTransaction()
+      session.abortTransaction();
       return next(err);
     }
     timeSlot.status = "booked";

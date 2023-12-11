@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema(
       enum: ["Male", "Female", "Other"],
     },
     dateOfBirth: {
-      type: Date,
+      type: String,
     },
     mobileNumber: {
       type: Number,
@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     address: {
+      type: String,
+      trim: true,
+    },
+    emailAddress: {
       type: String,
       trim: true,
     },

@@ -2,20 +2,15 @@ const Reception = require("../../Models/ReceptionModel");
 const HttpError = require("../../Models/http-error");
 const Prescription = require("../../Models/PrescriptionModel");
 const Appointment = require("../../Models/AppointmentModel");
+const User = require("../../Models/UserModel");
 
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const { hashPassword } = require("../../utils/hashPasswords");
-const {
-  createReceptionService,
-} = require("../../Services/Reception/ReceptionServices");
+const { createReceptionService } = require("../../Services/Reception/ReceptionServices");
 
-const {
-  nodeEnv,
-  uploadImagePath,
-  uploadPrescriptionPath,
-} = require("../../config/config");
+const { nodeEnv, uploadImagePath, uploadPrescriptionPath } = require("../../config/config");
 const { generateAuthToken } = require("../../utils/generateAuthToken");
 const { checkIfUserExists } = require("../../helpers/helperFunctions");
 const { commonLogin } = require("../common/CommonLogin");
@@ -72,6 +67,7 @@ const receptionSignup = async (req, res, next) => {
 const receptionLogin = async (req, res, next) => {
   try {
     const { email, password, doNotLogout } = req.body;
+    console.log("🚀 ~ file: receptionController.js:75 ~ receptionLogin ~ req.body:", req.body);
     const loginInput = {
       email,
       password,
@@ -137,10 +133,7 @@ const changeProfilePicture = async (req, res, next) => {
       reception,
     });
   } catch (error) {
-    console.log(
-      "🚀 ~ file: receptionController.js:125 ~ changeProfilePicture ~ error:",
-      error
-    );
+    console.log("🚀 ~ file: receptionController.js:125 ~ changeProfilePicture ~ error:", error);
     const err = new HttpError("Upload profile picture.", 500);
     return next(error || err);
   }
@@ -148,10 +141,7 @@ const changeProfilePicture = async (req, res, next) => {
 const getProfilePicture = async (req, res, next) => {
   try {
     const { pictureId } = req.params;
-    const filePath = path.join(
-      __dirname,
-      "../../FilesUploaded/ProfilePictures/" + pictureId
-    );
+    const filePath = path.join(__dirname, "../../FilesUploaded/ProfilePictures/" + pictureId);
 
     if (fs.existsSync(filePath)) {
       return res.sendFile(filePath);
@@ -178,6 +168,7 @@ const getDoctorList = async (req, res, next) => {
 const getDoctorProfile = async (req, res, next) => {
   try {
     const doctorProfile = await commonGetDoctorProfile(req.params.id);
+    console.log("🚀 ~doctorProfile:", doctorProfile)
     res.json({ message: "Success", doctorProfile });
   } catch (error) {
     const err = new HttpError("Unable find doctor profile", 500);
@@ -204,10 +195,7 @@ const getAppointmentDetails = async (req, res, next) => {
 };
 
 const updateVitals = async (req, res, next) => {
-  const uploadFileAbsolutePath = path.resolve(
-    __dirname,
-    uploadPrescriptionPath
-  );
+  const uploadFileAbsolutePath = path.resolve(__dirname, uploadPrescriptionPath);
   try {
     const { bloodPressure, heartRate, temperature, respiratoryRate } = req.body;
     const vitals = { bloodPressure, heartRate, temperature, respiratoryRate };
@@ -230,10 +218,10 @@ const updateVitals = async (req, res, next) => {
     });
     const prescriptionUrl = "/prescription/" + prescriptionFileName;
     prescription.prescriptionUrl = prescriptionUrl;
-    const appointmentId= prescription.appointmentId;
-    const appointment = await Appointment.findById(appointmentId)
-    appointment.status= "onGoing"
-    await appointment.save()
+    const appointmentId = prescription.appointmentId;
+    const appointment = await Appointment.findById(appointmentId);
+    appointment.status = "onGoing";
+    await appointment.save();
     await prescription.save();
     res.json({ message: "Success", prescription });
   } catch (error) {
@@ -244,10 +232,7 @@ const updateVitals = async (req, res, next) => {
 const getPrescriptionFileById = async (req, res, next) => {
   try {
     const { prescriptionFile } = req.params;
-    const filePath = path.join(
-      __dirname,
-      "../../FilesUploaded/Prescriptions/" + prescriptionFile
-    );
+    const filePath = path.join(__dirname, "../../FilesUploaded/Prescriptions/" + prescriptionFile);
     if (fs.existsSync(filePath)) {
       return res.sendFile(filePath);
     } else {
@@ -263,11 +248,39 @@ const getPrescriptionFileById = async (req, res, next) => {
 const cancelAppointment = async (req, res, next) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
-    appointment.status= "canceled"
-    await appointment.save()
-    res.json({message:"Appointment is cancelled",appointment})
+    appointment.status = "canceled";
+    await appointment.save();
+    res.json({ message: "Appointment is cancelled", appointment });
   } catch (error) {
     const err = new HttpError("Unable to cancel appointment.", 500);
+    return next(error || err);
+  }
+};
+
+const createUser = async (req, res, next) => {
+  try {
+    const { firstName, lastName, gender, dateOfBirth, mobileNumber, emailAddress } = req.body;
+    if (!firstName || !lastName || !dateOfBirth || !mobileNumber || !emailAddress) {
+      const err = new HttpError("All input fields are required.", 500);
+      return next(err);
+    }
+    const existingUser = await User.findOne({ mobileNumber });
+    if (existingUser) {
+      const err = new HttpError("User with this mobile number already exists.", 422);
+      return next(err);
+    }
+    const user = await User.create({
+      firstName,
+      lastName,
+      gender,
+      dateOfBirth,
+      mobileNumber,
+      emailAddress,
+    });
+    console.log("🚀  ~ user:", user);
+    return res.json({ message: "Success", user });
+  } catch (error) {
+    const err = new HttpError("Unable to create user", 500);
     return next(error || err);
   }
 };
@@ -283,5 +296,6 @@ module.exports = {
   getAppointmentDetails,
   updateVitals,
   getPrescriptionFileById,
-  cancelAppointment
+  cancelAppointment,
+  createUser,
 };

@@ -42,6 +42,10 @@ const doctorSchema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
+  language: {
+    type: [String],
+  },
+  education: { type: String, required: true },
   password: {
     type: String,
     required: [true, "Please enter a password"],
@@ -51,6 +55,7 @@ const doctorSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "ScheduleConfig",
   },
+  pricePerHour: { type: Number },
 });
 
 const Doctor = mongoose.model("Doctor", doctorSchema);

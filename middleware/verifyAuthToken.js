@@ -4,10 +4,10 @@ const HttpError = require("../Models/http-error");
 const verifyIsLoggedIn = async (req, res, next) => {
   try {
     const token = req.cookies.access_token || req.cookies.UserAccess_token;
-
-    if (!token) {
-      return res.status(403).send("Token is required for authentication.");
-    }
+    //uncomment this later
+    // if (!token) {
+    //   return res.status(403).send("Token is required for authentication.");
+    // }
     try {
       const decodeToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
       req.user = decodeToken;
