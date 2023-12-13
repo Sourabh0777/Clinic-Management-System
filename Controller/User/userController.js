@@ -7,13 +7,7 @@ const Otp = require("../../Models/OtpModel");
 const { generateUserAuthToken } = require("../../utils/generateAuthToken");
 
 //twilio
-const {
-  twilioSid,
-  twilioAuthToken,
-  twilioNo,
-  cookieMaxAge,
-  nodeEnv,
-} = require("../../config/config");
+const { twilioSid, twilioAuthToken, twilioNo, cookieMaxAge, nodeEnv } = require("../../config/config");
 const { generateRandomOTP } = require("../../config/twillio");
 const LabReport = require("../../Models/LabReportModel");
 const client = require("twilio")(twilioSid, twilioAuthToken);
@@ -26,10 +20,7 @@ const UserSignUp = async (req, res, next) => {
     }
     const mobileNoExists = await User.findOne({ mobileNumber: mobileNumber });
     if (mobileNoExists) {
-      const error = new HttpError(
-        "User already exist from this mobile no.",
-        400
-      );
+      const error = new HttpError("User already exist from this mobile no.", 400);
       return next(error);
     }
 
@@ -101,10 +92,7 @@ const UserLogin = async (req, res, next) => {
     const { mobileNumber } = req.body;
     const user = await User.findOne({ mobileNumber: mobileNumber });
     if (!user) {
-      const error = new HttpError(
-        "No user exists from this mobile no, Sign up",
-        400
-      );
+      const error = new HttpError("No user exists from this mobile no, Sign up", 400);
       return next(error);
     }
     const OTP = generateRandomOTP();
@@ -127,10 +115,7 @@ const UserLoginVerify = async (req, res, next) => {
 
     const user = await User.findOne({ mobileNumber: mobileNumber });
     if (!user) {
-      const error = new HttpError(
-        "No user exists from this mobile no, Sign up",
-        400
-      );
+      const error = new HttpError("No user exists from this mobile no, Sign up", 400);
     }
     // if (otp !== user.lastOtp) {
     //   const err = new HttpError("OTP not matched", 400);
@@ -182,16 +167,7 @@ const selectedDoctorSchedule = async (req, res, next) => {
 const updateUSerProfile = async (req, res, next) => {
   const { id } = req.user;
   try {
-    const {
-      firstName,
-      lastName,
-      gender,
-      dateOfBirth,
-      otherContactNo,
-      state,
-      address,
-      emailAddress,
-    } = req.body;
+    const { firstName, lastName, gender, dateOfBirth, otherContactNo, state, address, emailAddress, age } = req.body;
     const user = await User.findById(id);
     user.firstName = firstName || user.firstName;
     user.lastName = lastName || user.lastName;
@@ -201,6 +177,7 @@ const updateUSerProfile = async (req, res, next) => {
     user.state = state || user.state;
     user.address = address || user.address;
     user.emailAddress = emailAddress || user.emailAddress;
+    user.age = age || user.age;
     await user.save();
     console.log("🚀 ~  ~ user:", user);
     res.send("Working");
@@ -254,10 +231,7 @@ const getLabReports = async (req, res, next) => {
     console.log("🚀 ~ query:", query);
     const skip = (page - 1) * itemsPerPage;
     let sortOptions = { createdDate: -1 };
-    const labReports = await LabReport.find(query)
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(itemsPerPage);
+    const labReports = await LabReport.find(query).sort(sortOptions).skip(skip).limit(itemsPerPage);
 
     return res.json({ labReports });
   } catch (error) {

@@ -205,9 +205,10 @@ const getPrescription = async (req, res, next) => {
 };
 const getAppointments = async (req, res, next) => {
   try {
-    const { id } = req.user;
-    const appointments = await Appointment.find({ doctor: id }).orFail();
-    return res.json({ message: "Success", appointments });
+    const { id } = req.params;
+    const appointments = await Appointment.find({ doctor: id }).populate("user").populate("doctor").populate("timeSlotId");
+    console.log("🚀 ~  appointments:", appointments);
+    return res.send({ message: "working", appointments });
   } catch (error) {
     const err = new HttpError("Unable to fetch  appointments", 500);
     return next(error || err);

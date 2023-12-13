@@ -84,4 +84,20 @@ const createAppointment = async (req, res, next) => {
     return next(error || err);
   }
 };
-module.exports = { createAppointment };
+const UpdateAppointment = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log("🚀 ~ file: AppointmentController.js:90 ~ UpdateAppointment ~ id:", id);
+    const { status } = req.body;
+    console.log("🚀 ~ file: AppointmentController.js:92 ~ UpdateAppointment ~ status:", status);
+    const appointment = await Appointment.findById(id);
+    appointment.status = status;
+    await appointment.save();
+    return res.json({ message: "Appointment status updated." });
+  } catch (error) {
+    const err = new HttpError("Unable to appointment status.", 500);
+    return next(error || err);
+  }
+};
+
+module.exports = { createAppointment, UpdateAppointment };
