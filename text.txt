@@ -7,6 +7,15 @@ const uploadReports = async (req, res, next) => {
     return next(error || err);
   }
 };
-const user = req.user
+const user = req.user   
+~ user: {
+  id: '656d9cdeae2375e87d66bc1c',
+  name: 'DOctor Sharma',
+  email: 'doctor1@gmail.com',
+  operatorType: 'Doctor',
+  password: '$2a$12$z80OP2djL4IgLf5n2kz/3ezJGDend2JCE3566obNBoh3yLLLcoW9e',
+  iat: 1702294262,
+  exp: 1702319462
+}
 module.exports = {uploadReports};
 //w2#P9@L$x5Q7j#Kp

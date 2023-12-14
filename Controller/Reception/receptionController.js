@@ -16,11 +16,7 @@ const { checkIfUserExists } = require("../../helpers/helperFunctions");
 const { commonLogin } = require("../common/CommonLogin");
 const { commonGetProfile } = require("../common/commonGetProfile");
 const { pictureValidate } = require("../../utils/pictureValidate");
-const {
-  commonGetDoctorList,
-  commonGetDoctorProfile,
-  commonGetDoctorScheduleByScheduleId,
-} = require("../common/CommonDoctor");
+const { commonGetDoctorList, commonGetDoctorProfile, commonGetDoctorScheduleByScheduleId } = require("../common/CommonDoctor");
 const { commonGetAppointmentById } = require("../common/CommonAppointment");
 const receptionSignup = async (req, res, next) => {
   try {
@@ -168,7 +164,7 @@ const getDoctorList = async (req, res, next) => {
 const getDoctorProfile = async (req, res, next) => {
   try {
     const doctorProfile = await commonGetDoctorProfile(req.params.id);
-    console.log("🚀 ~doctorProfile:", doctorProfile)
+    console.log("🚀 ~doctorProfile:", doctorProfile);
     res.json({ message: "Success", doctorProfile });
   } catch (error) {
     const err = new HttpError("Unable find doctor profile", 500);
@@ -259,8 +255,8 @@ const cancelAppointment = async (req, res, next) => {
 
 const createUser = async (req, res, next) => {
   try {
-    const { firstName, lastName, gender, dateOfBirth, mobileNumber, emailAddress } = req.body;
-    if (!firstName || !lastName || !dateOfBirth || !mobileNumber || !emailAddress) {
+    const { firstName, lastName, gender, mobileNumber, emailAddress, dateOfBirth, age } = req.body;
+    if (!firstName || !lastName || !dateOfBirth || !mobileNumber || !emailAddress || !age) {
       const err = new HttpError("All input fields are required.", 500);
       return next(err);
     }
@@ -273,11 +269,11 @@ const createUser = async (req, res, next) => {
       firstName,
       lastName,
       gender,
-      dateOfBirth,
       mobileNumber,
       emailAddress,
+      dateOfBirth,
+      age,
     });
-    console.log("🚀  ~ user:", user);
     return res.json({ message: "Success", user });
   } catch (error) {
     const err = new HttpError("Unable to create user", 500);
