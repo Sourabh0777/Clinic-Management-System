@@ -13,7 +13,8 @@ const {
   updateVitals,
   getPrescriptionFileById,
   cancelAppointment,
-  createUser
+  createUser,
+  searchUser,
 } = require("../Controller/Reception/receptionController");
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
 const { verifyIsReception } = require("../middleware/verifyIsReception");
@@ -35,11 +36,12 @@ router.get("/doctorList", getDoctorList);
 router.get("/doctor/:id", getDoctorProfile);
 router.get("/schedule/:id", getDoctorSchedule);
 router.get("/appointment/:id", getAppointmentDetails);
-router.put("/vitals/:id", updateVitals);
+router.post("/vitals", updateVitals);
 router.get("/prescription/:prescriptionFile", getPrescriptionFileById);
 router.put("/cancelAppointment/:id", cancelAppointment);
 
-//Reception User Related API
+//Reception User/Patient Related API
 router.post("/createUser", createUser);
+router.post("/searchUser", searchUser);
 
 module.exports = router;

@@ -1,47 +1,66 @@
 const mongoose = require("mongoose");
 const vitalsSchema = new mongoose.Schema({
+  weight: {
+    type: Number,
+  },
+  height: {
+    type: Number,
+  },
   bloodPressure: {
-    type: String,
-  },
-  heartRate: {
     type: Number,
   },
-  temperature: {
+  bloodSugar: {
     type: Number,
   },
-  respiratoryRate: {
-    type: Number,
-  },
-});
-const prescriptionSchema = new mongoose.Schema({
-  appointmentId: {
-    type: String,
-    required: false,
-  },
-  date: {
-    type: Date,
-    required: true,
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  prescriptionUrl: {
+  priorDisease: {
     type: String,
   },
-  vitals: {
-    type: vitalsSchema
-  },
-  isLocked:{type:Boolean, default:false},
-  previousPrescriptions: {
+  priorMedication: {
     type: String,
   },
 });
+const prescriptionSchema = new mongoose.Schema(
+  {
+    appointmentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Appointment",
+      required: false,
+    },
+    timeSlotId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TimeSlot",
+      required: false,
+    },
+    reception: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Reception",
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    prescriptionData: {
+      type: String,
+    },
+    vitals: {
+      type: vitalsSchema,
+    },
+    isLocked: { type: Boolean, default: false },
+    previousPrescriptions: {
+      type: String,
+    },
+    date: {
+      type: Date,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
 const Prescription = mongoose.model("Prescription", prescriptionSchema);
 
 module.exports = Prescription;
 //Short hand
 //Required = date , userId,
-//Not required = appointmentId,previousPrescriptions , vitals, canvas
+//Not required =reception , appointmentId, timeSlotId , reception , user , prescriptionData , , vitals,

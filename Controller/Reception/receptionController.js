@@ -63,7 +63,6 @@ const receptionSignup = async (req, res, next) => {
 const receptionLogin = async (req, res, next) => {
   try {
     const { email, password, doNotLogout } = req.body;
-    console.log("🚀 ~ file: receptionController.js:75 ~ receptionLogin ~ req.body:", req.body);
     const loginInput = {
       email,
       password,
@@ -164,7 +163,6 @@ const getDoctorList = async (req, res, next) => {
 const getDoctorProfile = async (req, res, next) => {
   try {
     const doctorProfile = await commonGetDoctorProfile(req.params.id);
-    console.log("🚀 ~doctorProfile:", doctorProfile);
     res.json({ message: "Success", doctorProfile });
   } catch (error) {
     const err = new HttpError("Unable find doctor profile", 500);
@@ -191,34 +189,17 @@ const getAppointmentDetails = async (req, res, next) => {
 };
 
 const updateVitals = async (req, res, next) => {
-  const uploadFileAbsolutePath = path.resolve(__dirname, uploadPrescriptionPath);
   try {
-    const { bloodPressure, heartRate, temperature, respiratoryRate } = req.body;
-    const vitals = { bloodPressure, heartRate, temperature, respiratoryRate };
-    const prescription = await Prescription.findById(req.params.id);
+    const { prescriptionId, appointmentId, timeSlotId, reception, vitals, date } = req.body;
+    const prescription = await Prescription.findById(prescriptionId);
+    prescription.timeSlotId = timeSlotId;
+    prescription.reception = reception;
+    prescription.date = date;
     prescription.vitals = vitals;
-    const prescriptionFile = req.files.prescription;
-    if (!req.files || !!prescriptionFile === false) {
-      const err = new HttpError("No files attached", 400);
-      return next(err);
-    }
-    const prescriptionFileId = uuidv4();
-    const extension = path.extname(prescriptionFile.name);
-    const prescriptionFileName = prescriptionFileId + extension;
-    const uploadPath = uploadFileAbsolutePath + "/" + prescriptionFileName;
-    prescriptionFile.mv(uploadPath, function (err) {
-      if (err) {
-        const err = new HttpError("Unable to upload reports", 500);
-        return next(err);
-      }
-    });
-    const prescriptionUrl = "/prescription/" + prescriptionFileName;
-    prescription.prescriptionUrl = prescriptionUrl;
-    const appointmentId = prescription.appointmentId;
-    const appointment = await Appointment.findById(appointmentId);
-    appointment.status = "onGoing";
-    await appointment.save();
     await prescription.save();
+    const appointment = await Appointment.findById(appointmentId);
+    appointment.status = "active";
+    await appointment.save();
     res.json({ message: "Success", prescription });
   } catch (error) {
     const err = new HttpError("Unable to update vitals.", 500);
@@ -280,6 +261,21 @@ const createUser = async (req, res, next) => {
     return next(error || err);
   }
 };
+const searchUser = async (req, res, next) => {
+  try {
+    const { mobileNumber } = req.body;
+    const user = await User.find({ mobileNumber: mobileNumber });
+    if (user.length < 1) {
+      const err = new HttpError("No user found.", 500);
+      return next(err);
+    }
+    return res.json({ message: "User Found", user });
+  } catch (error) {
+    const err = new HttpError("Unable to find user.", 500);
+    return next(error || err);
+  }
+};
+
 module.exports = {
   receptionSignup,
   receptionLogin,
@@ -294,4 +290,41 @@ module.exports = {
   getPrescriptionFileById,
   cancelAppointment,
   createUser,
+  searchUser,
 };
+
+// const updateVitals = async (req, res, next) => {
+//   const uploadFileAbsolutePath = path.resolve(__dirname, uploadPrescriptionPath);
+//   try {
+//     const { weight , height, bloodPressure, bloodSugar ,priorDisease ,priorMedication   } = req.body;
+//     const vitals = { weight , height, bloodPressure, bloodSugar ,priorDisease ,priorMedication   };
+//     const prescription = await Prescription.findById(req.params.id);
+//     prescription.vitals = vitals;
+//     const prescriptionFile = req.files.prescription;
+//     if (!req.files || !!prescriptionFile === false) {
+//       const err = new HttpError("No files attached", 400);
+//       return next(err);
+//     }
+//     const prescriptionFileId = uuidv4();
+//     const extension = path.extname(prescriptionFile.name);
+//     const prescriptionFileName = prescriptionFileId + extension;
+//     const uploadPath = uploadFileAbsolutePath + "/" + prescriptionFileName;
+//     prescriptionFile.mv(uploadPath, function (err) {
+//       if (err) {
+//         const err = new HttpError("Unable to upload reports", 500);
+//         return next(err);
+//       }
+//     });
+//     const prescriptionUrl = "/prescription/" + prescriptionFileName;
+//     prescription.prescriptionUrl = prescriptionUrl;
+//     const appointmentId = prescription.appointmentId;
+//     const appointment = await Appointment.findById(appointmentId);
+//     appointment.status = "onGoing";
+//     await appointment.save();
+//     await prescription.save();
+//     res.json({ message: "Success", prescription });
+//   } catch (error) {
+//     const err = new HttpError("Unable to update vitals.", 500);
+//     return next(error || err);
+//   }
+// };
