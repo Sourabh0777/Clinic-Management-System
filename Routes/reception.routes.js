@@ -36,6 +36,7 @@ router.get("/doctorList", getDoctorList);
 router.get("/doctor/:id", getDoctorProfile);
 router.get("/schedule/:id", getDoctorSchedule);
 router.get("/appointment/:id", getAppointmentDetails);
+//Vitals / Prescription
 router.post("/vitals", updateVitals);
 router.get("/prescription/:prescriptionFile", getPrescriptionFileById);
 router.put("/cancelAppointment/:id", cancelAppointment);

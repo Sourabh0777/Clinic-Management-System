@@ -197,9 +197,6 @@ const updateVitals = async (req, res, next) => {
     prescription.date = date;
     prescription.vitals = vitals;
     await prescription.save();
-    const appointment = await Appointment.findById(appointmentId);
-    appointment.status = "active";
-    await appointment.save();
     res.json({ message: "Success", prescription });
   } catch (error) {
     const err = new HttpError("Unable to update vitals.", 500);

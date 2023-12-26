@@ -10,6 +10,9 @@ const {
   getAppointment,
   getPrescription,
   getAppointments,
+  updateVitals,
+  updatePrescription,
+  completeAppointment
 } = require("../Controller/Doctor/doctorController");
 const { addSpecialization } = require("../Controller/Specialization/specializationController");
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
@@ -32,8 +35,14 @@ router.get("/schedule", getSchedule);
 router.get("/appointments/:id", getAppointments);
 router.get("/appointment/:id", getAppointment);
 router.put("/appointment/:id", UpdateAppointment);
+router.put("/completeAppointment/:id", completeAppointment);
+
+//Vitals / Prescription
+router.post("/updateVitals", updateVitals);
+router.put("/updatePrescription/:id", updatePrescription); // Update Prescription pad
 
 router.get("/prescription/:id", getPrescription);
 //Specialization
 router.post("/specialization", addSpecialization);
+
 module.exports = router;

@@ -214,6 +214,59 @@ const getAppointments = async (req, res, next) => {
     return next(error || err);
   }
 };
+const updateVitals = async (req, res, next) => {
+  try {
+    const { prescriptionId, vitals } = req.body;
+    const prescription = await Prescription.findById(prescriptionId);
+    prescription.vitals = vitals;
+    await prescription.save();
+    return res.json({ message: "Vitals Updated", prescription });
+  } catch (error) {
+    const err = new HttpError("Unable to update vitals.", 500);
+    return next(error || err);
+  }
+};
+
+const updatePrescription = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { canvasJson } = req.body;
+    const { paths, circles, stamps } = canvasJson;
+
+    const prescription = await Prescription.findById(id);
+
+    prescription.prescriptionData = {
+      paths: paths.map((path) => ({
+        segments: path.segments.map((segment) => ({
+          type: "Segment",
+          segments: [segment],
+        })),
+        color: path.color,
+      })),
+      circles: circles,
+      stamps: stamps,
+    };
+    await prescription.save();
+    console.log("🚀 prescription:", prescription);
+    return res.json({ message: "Prescription Updated", prescription });
+  } catch (error) {
+    const err = new HttpError("Unable to xasdasd", 500);
+    return next(error || err);
+  }
+};
+
+const completeAppointment = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const appointment = await Appointment.findById(id).orFail();
+    appointment.status = "completed";
+    await appointment.save();
+    return res.json({ message: "Appointment Completed", appointment });
+  } catch (error) {
+    const err = new HttpError("Unable to update appointment", 500);
+    return next(error || err);
+  }
+};
 module.exports = {
   doctorSignup,
   doctorLogin,
@@ -224,4 +277,7 @@ module.exports = {
   getAppointment,
   getPrescription,
   getAppointments,
+  updateVitals,
+  updatePrescription,
+  completeAppointment,
 };

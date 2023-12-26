@@ -19,6 +19,26 @@ const vitalsSchema = new mongoose.Schema({
     type: String,
   },
 });
+const segmentSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    default: "Segment",
+  },
+  segments: [String],
+});
+const prescriptionDataSchema = new mongoose.Schema({
+  paths: [
+    {
+      segments: [segmentSchema],
+      color: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
+  circles: [Number],
+  stamps: [Number],
+});
 const prescriptionSchema = new mongoose.Schema(
   {
     appointmentId: {
@@ -41,7 +61,7 @@ const prescriptionSchema = new mongoose.Schema(
       required: true,
     },
     prescriptionData: {
-      type: String,
+      type: prescriptionDataSchema,
     },
     vitals: {
       type: vitalsSchema,
