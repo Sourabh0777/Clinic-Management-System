@@ -22,10 +22,7 @@ const appointmentSchema = new mongoose.Schema(
       ref: "Prescription",
       required: true,
     },
-    modeOfAppointment: {
-      type: String,
-      enum: ["app", "reception"],
-    },
+
     appointmentDate: {
       type: Date,
       required: true,

@@ -108,7 +108,8 @@ const doctorLogin = async (req, res, next) => {
 const getDoctorProfile = async (req, res, next) => {
   try {
     const user = req.user;
-    const profile = await commonGetProfile(user);
+    console.log("🚀 ~ file: doctorController.js:111 ~ getDoctorProfile ~ user:", user);
+    const profile = await Doctor.findById(user.id).populate("specializationID").orFail();
     return res.json({ message: "Success", profile });
   } catch (error) {
     const err = new HttpError("Unable to get doctor profile", 500);
@@ -207,7 +208,6 @@ const getAppointments = async (req, res, next) => {
   try {
     const { id } = req.params;
     const appointments = await Appointment.find({ doctor: id }).populate("user").populate("doctor").populate("timeSlotId");
-    console.log("🚀 ~  appointments:", appointments);
     return res.send({ message: "working", appointments });
   } catch (error) {
     const err = new HttpError("Unable to fetch  appointments", 500);
@@ -267,6 +267,7 @@ const completeAppointment = async (req, res, next) => {
     return next(error || err);
   }
 };
+
 module.exports = {
   doctorSignup,
   doctorLogin,
