@@ -16,15 +16,14 @@ const labReportSchema = new mongoose.Schema(
       required: true,
     },
     url: [{ type: String, required: true }],
-    createdDate: { type: Date, default: Date.now ,index: true},
+    createdDate: { type: Date, default: Date.now, index: true },
   },
   {
     timestamps: true,
   }
 );
+labReportSchema.index({ user: 1, createdDate: 1 });
 
 const LabReport = mongoose.model("LabReport", labReportSchema);
 
 module.exports = LabReport;
-//Short hand
-// user ID , type , reception , doctor

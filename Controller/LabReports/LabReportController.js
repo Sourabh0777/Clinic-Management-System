@@ -22,20 +22,19 @@ const createReportType = async (req, res, next) => {
 };
 
 const uploadReportFiles = async (req, res, next) => {
-  const uploadReportsDirectory = path.resolve(
-    __dirname,
-    uploadReportsDirectoryPath
-  );
+  const uploadReportsDirectory = path.resolve(__dirname, uploadReportsDirectoryPath);
   try {
-    const { user, doctor, typeId ,createdDate} = req.body;
+    const { user, doctor, typeId, createdDate } = req.body;
+    console.log("🚀 ~ file: LabReportController.js:28 ~ uploadReportFiles ~ user:", user);
     const labReport = new LabReport({
       user,
       doctor,
       typeId,
-      createdDate
+      createdDate,
     });
 
     const reports = req.files.reports;
+    console.log("🚀 ~ file: LabReportController.js:36 ~ uploadReportFiles ~ reports:", reports);
     if (!req.files || !!reports === false) {
       const err = new HttpError("No files attached", 400);
       return next(err);
@@ -77,7 +76,7 @@ const getReport = async (req, res, next) => {
   try {
     const { reportId } = req.params;
 
-    const filePath = path.join( __dirname,"../../FilesUploaded/LabReports/"+reportId);
+    const filePath = path.join(__dirname, "../../FilesUploaded/LabReports/" + reportId);
     const a = fs.existsSync(filePath);
     // Check if the file exists before sending it
     if (fs.existsSync(filePath)) {
@@ -93,4 +92,24 @@ const getReport = async (req, res, next) => {
   }
 };
 
-module.exports = { uploadReportFiles, createReportType, getReport };
+const getReports = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      const err = new HttpError("User ID is required", 400);
+      return next(err);
+    }
+    const labReports = await LabReport.find({ user: userId });
+    if (!labReports) {
+      const err = new HttpError("No reports Found", 500);
+      return next(err);
+    }
+    return res.json({ message: "Found Reports", labReports });
+  } catch (error) {
+    console.error("Error fetching lab reports:", error);
+    const err = new HttpError("Unable to fetch lab reports", 500);
+    return next(error || err);
+  }
+};
+
+module.exports = { uploadReportFiles, createReportType, getReport, getReports };

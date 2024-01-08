@@ -95,5 +95,19 @@ const UpdateAppointment = async (req, res, next) => {
     return next(error || err);
   }
 };
+const getAcceptedAppointments = async (req, res, next) => {
+  try {
+    const appointments = await Appointment.find({
+      $or: [{ status: "accepted" }, { paymentMethod: "Paid" }],
+    })
+      .populate("doctor")
+      .populate("timeSlotId")
+      .populate("user");
 
-module.exports = { createAppointment, UpdateAppointment };
+    return res.json({ message: "Success", appointments });
+  } catch (error) {
+    const err = new HttpError("Unable to xasdasd", 500);
+    return next(error || err);
+  }
+};
+module.exports = { createAppointment, UpdateAppointment, getAcceptedAppointments };

@@ -17,6 +17,7 @@ const { commonLogin } = require("../common/CommonLogin");
 const { commonGetProfile } = require("../common/commonGetProfile");
 const { pictureValidate } = require("../../utils/pictureValidate");
 const { commonGetAppointmentById } = require("../common/CommonAppointment");
+const User = require("../../Models/UserModel");
 
 const doctorSignup = async (req, res, next) => {
   try {
@@ -181,6 +182,7 @@ const getSchedule = async (req, res, next) => {
   } catch (error) {
     const err = new HttpError("Unable to get schedule", 500);
     return next(error || err);
+    r;
   }
 };
 
@@ -267,7 +269,47 @@ const completeAppointment = async (req, res, next) => {
     return next(error || err);
   }
 };
-
+const searchUser = async (req, res, next) => {
+  try {
+    const { mobileNumber } = req.body;
+    const user = await User.find({ mobileNumber: mobileNumber });
+    if (user.length < 1) {
+      const err = new HttpError("No user found.", 500);
+      return next(err);
+    }
+    return res.json({ message: "User Found", user });
+  } catch (error) {
+    const err = new HttpError("Unable to find user.", 500);
+    return next(error || err);
+  }
+};
+const createUser = async (req, res, next) => {
+  try {
+    const { firstName, lastName, gender, mobileNumber, emailAddress, dateOfBirth, age } = req.body;
+    if (!firstName || !lastName || !dateOfBirth || !mobileNumber || !emailAddress || !age) {
+      const err = new HttpError("All input fields are required.", 500);
+      return next(err);
+    }
+    const existingUser = await User.findOne({ mobileNumber });
+    if (existingUser) {
+      const err = new HttpError("User with this mobile number already exists.", 422);
+      return next(err);
+    }
+    const user = await User.create({
+      firstName,
+      lastName,
+      gender,
+      mobileNumber,
+      emailAddress,
+      dateOfBirth,
+      age,
+    });
+    return res.json({ message: "Success", user });
+  } catch (error) {
+    const err = new HttpError("Unable to create user", 500);
+    return next(error || err);
+  }
+};
 module.exports = {
   doctorSignup,
   doctorLogin,
@@ -281,4 +323,6 @@ module.exports = {
   updateVitals,
   updatePrescription,
   completeAppointment,
+  searchUser,
+  createUser
 };
