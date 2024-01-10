@@ -24,17 +24,19 @@ const createReportType = async (req, res, next) => {
 const uploadReportFiles = async (req, res, next) => {
   const uploadReportsDirectory = path.resolve(__dirname, uploadReportsDirectoryPath);
   try {
-    const { user, doctor, typeId, createdDate } = req.body;
-    console.log("🚀 ~ file: LabReportController.js:28 ~ uploadReportFiles ~ user:", user);
+    const { user, doctor, typename, createdDate } = req.body;
+    if (!typename) {
+      const err = new HttpError("*Report Type Required", 400);
+      next(err);
+    }
     const labReport = new LabReport({
       user,
       doctor,
-      typeId,
+      typename,
       createdDate,
     });
 
     const reports = req.files.reports;
-    console.log("🚀 ~ file: LabReportController.js:36 ~ uploadReportFiles ~ reports:", reports);
     if (!req.files || !!reports === false) {
       const err = new HttpError("No files attached", 400);
       return next(err);

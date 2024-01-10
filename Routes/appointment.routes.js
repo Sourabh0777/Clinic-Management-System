@@ -4,7 +4,7 @@ const { createAppointment } = require("../Controller/Appointment/AppointmentCont
 const { getTimeSlotDetails } = require("../Controller/Appointment/timeSlotController");
 
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
-// router.use(verifyIsLoggedIn);
+router.use(verifyIsLoggedIn);
 router.post("/createAppointment", createAppointment);
 router.get("/timeSlotDetails/:id", getTimeSlotDetails);
 
