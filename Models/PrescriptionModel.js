@@ -67,6 +67,7 @@ const prescriptionSchema = new mongoose.Schema(
       type: vitalsSchema,
     },
     isLocked: { type: Boolean, default: false },
+    url: { type: String },
     previousPrescriptions: {
       type: String,
     },

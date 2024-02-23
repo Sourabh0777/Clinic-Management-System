@@ -5,12 +5,13 @@ const url = process.env.MONGO_URL;
 const port = process.env.PORT || 5000;
 const nodeEnv = process.env.NODE_ENV;
 const secretKey = process.env.JWT_SECRET_KEY;
-const jwtExpiresIn = { expiresIn: "7h" };
+const jwtExpiresIn = { expiresIn: '7h' };
 const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
-const uploadReportsDirectoryPath = "../../FilesUploaded/LabReports";
-const uploadImagePath = "../../FilesUploaded/ProfilePictures";
-const uploadPrescriptionPath =  "../../FilesUploaded/Prescriptions"
-const baseUrl = "http://localhost:5000/"; // Replace with your server's address
+const uploadReportsDirectoryPath = '../../FilesUploaded/LabReports';
+
+const uploadImagePath = '../../FilesUploaded/ProfilePictures';
+const uploadPrescriptionPath = '../../FilesUploaded/Prescriptions';
+const baseUrl = 'http://localhost:5000/'; // Replace with your server's address
 //Twilio
 const twilioSid = process.env.TWILIOSID;
 const twilioAuthToken = process.env.TWILIOAUTHTOKEN;
@@ -30,5 +31,5 @@ module.exports = {
   twilioSid,
   twilioAuthToken,
   twilioNo,
-  uploadPrescriptionPath
+  uploadPrescriptionPath,
 };

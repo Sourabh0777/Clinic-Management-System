@@ -2,13 +2,10 @@ const pictureValidate = async (picture) => {
   if (Array.isArray(picture)) {
     return { error: "Upload a single image only." };
   }
-  if (picture.size > 1048576) {
-    return { error: "File size is too large" };
-  }
-
   const mimeType = picture.mimetype;
+  console.log("🚀 ~ pictureValidate ~ mimeType:", mimeType)
 
-  const fileType = /jpg|jpeg|png/;
+  const fileType = /jpg|jpeg|png|/;
 
   const typeTest = fileType.test(mimeType);
   if (!typeTest) {

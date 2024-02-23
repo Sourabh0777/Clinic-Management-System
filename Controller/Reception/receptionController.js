@@ -16,7 +16,11 @@ const { checkIfUserExists } = require("../../helpers/helperFunctions");
 const { commonLogin } = require("../common/CommonLogin");
 const { commonGetProfile } = require("../common/commonGetProfile");
 const { pictureValidate } = require("../../utils/pictureValidate");
-const { commonGetDoctorList, commonGetDoctorProfile, commonGetDoctorScheduleByScheduleId } = require("../common/CommonDoctor");
+const {
+  commonGetDoctorList,
+  commonGetDoctorProfile,
+  commonGetDoctorScheduleByScheduleId,
+} = require("../common/CommonDoctor");
 const { commonGetAppointmentById } = require("../common/CommonAppointment");
 const receptionSignup = async (req, res, next) => {
   try {
@@ -73,7 +77,7 @@ const receptionLogin = async (req, res, next) => {
     if (login) {
       const { token, cookieParams, valuesPassInResponse } = login;
       res.cookie("access_token", token, cookieParams).json({
-        message: "Success user logged in.",
+        message: "Logged in.",
         user: valuesPassInResponse,
       });
     }
@@ -85,7 +89,9 @@ const receptionLogin = async (req, res, next) => {
 const getReceptionProfile = async (req, res, next) => {
   try {
     const user = req.user;
+    console.log("🚀 ~ getReceptionProfile ~ user:", user)
     const profile = await commonGetProfile(user);
+    console.log("🚀 ~~ profile:", profile);
     return res.send(profile);
   } catch (error) {
     const err = new HttpError("Unable to get Reception profile", 500);
@@ -163,6 +169,7 @@ const getDoctorList = async (req, res, next) => {
 const getDoctorProfile = async (req, res, next) => {
   try {
     const doctorProfile = await commonGetDoctorProfile(req.params.id);
+    console.log("🚀 ~ getDoctorProfile ~ doctorProfile:", doctorProfile);
     res.json({ message: "Success", doctorProfile });
   } catch (error) {
     const err = new HttpError("Unable find doctor profile", 500);

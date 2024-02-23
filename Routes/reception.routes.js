@@ -24,12 +24,13 @@ router.post("/signup", receptionSignup);
 router.post("/login", receptionLogin);
 
 //Verify Reception Related Api
-// router.use(verifyIsLoggedIn, verifyIsReception);
+router.get("/profile/picture/:pictureId", getProfilePicture);
+
+router.use(verifyIsLoggedIn, verifyIsReception);
 
 //Reception Profile Related API
 router.get("/profile", getReceptionProfile);
 router.put("/profile/picture", changeProfilePicture);
-router.get("/profile/picture/:pictureId", getProfilePicture);
 
 // Get Doctor and schedule related api
 router.get("/doctorList", getDoctorList);
