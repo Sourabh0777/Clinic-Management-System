@@ -1,26 +1,33 @@
 const express = require("express");
 const router = express.Router();
 const {
-  doctorSignup,
-  getDoctorProfile,
-  doctorLogin,
-  changeProfilePicture,
-  getProfilePicture,
-  getSchedule,
-  getAppointment,
-  getPrescription,
-  getAppointments,
-  updateVitals,
-  updatePrescription,
-  completeAppointment,
-  searchUser,
-  createUser,
+   doctorSignup,
+   getDoctorProfile,
+   doctorLogin,
+   changeProfilePicture,
+   getProfilePicture,
+   getSchedule,
+   getAppointment,
+   getPrescription,
+   getAppointments,
+   updateVitals,
+   updatePrescription,
+   completeAppointment,
+   searchUser,
+   createUser,
 } = require("../Controller/Doctor/doctorController");
-const { addSpecialization } = require("../Controller/Specialization/specializationController");
+const {
+   addSpecialization,
+} = require("../Controller/Specialization/specializationController");
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
 const { verifyIsDoctor } = require("../middleware/verifyIsDoctor");
-const { createInitialSchedule } = require("../Controller/DoctorSchedule/DoctorSchedule");
-const { UpdateAppointment, getAcceptedAppointments } = require("../Controller/Appointment/AppointmentController");
+const {
+   createInitialSchedule,
+} = require("../Controller/DoctorSchedule/DoctorSchedule");
+const {
+   UpdateAppointment,
+   getAcceptedAppointments,
+} = require("../Controller/Appointment/AppointmentController");
 
 router.post("/signup", doctorSignup);
 router.post("/login", doctorLogin);
