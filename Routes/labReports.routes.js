@@ -10,6 +10,6 @@ const {
 router.post("/createReportType", createReportType);
 router.post("/uploadReports", uploadReportFiles);
 router.get("/report/:reportId", getReport);
-router.get("/reports", getReports); //TODO:method should be GET (prev - POST)
+router.post("/reports", getReports);
 
 module.exports = router;

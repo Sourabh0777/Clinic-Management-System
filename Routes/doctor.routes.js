@@ -15,6 +15,7 @@ const {
    completeAppointment,
    searchUser,
    createUser,
+   UpdateDoctorProfile,
 } = require("../Controller/Doctor/doctorController");
 const {
    addSpecialization,
@@ -31,25 +32,20 @@ const {
 
 router.post("/signup", doctorSignup);
 router.post("/login", doctorLogin);
-
 router.use(verifyIsLoggedIn, verifyIsDoctor);
 router.get("/profile", getDoctorProfile);
-// router.put("/profile", UpdateDoctorProfile);
-
+router.put("/profile", UpdateDoctorProfile);
 router.put("/profile/picture", changeProfilePicture);
 router.get("/profile/picture/:pictureId", getProfilePicture);
 //Schedule
 router.get("/schedule", getSchedule);
 router.post("/createSchedule", createInitialSchedule);
-
 //Appointment
 router.get("/appointments/:id", getAppointments);
 router.get("/appointment/:id", getAppointment);
 router.put("/appointment/:id", UpdateAppointment);
 router.get("/getAcceptedAppointments", getAcceptedAppointments);
-
 router.put("/completeAppointment/:id", completeAppointment);
-
 //Vitals / Prescription
 router.post("/updateVitals", updateVitals);
 router.put("/updatePrescription/:id", updatePrescription); // Update Prescription pad
