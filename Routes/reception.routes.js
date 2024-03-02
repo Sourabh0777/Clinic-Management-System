@@ -1,20 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const {
-  receptionSignup,
-  receptionLogin,
-  getReceptionProfile,
-  changeProfilePicture,
-  getProfilePicture,
-  getDoctorList,
-  getDoctorProfile,
-  getDoctorSchedule,
-  getAppointmentDetails,
-  updateVitals,
-  getPrescriptionFileById,
-  cancelAppointment,
-  createUser,
-  searchUser,
+   receptionSignup,
+   receptionLogin,
+   getReceptionProfile,
+   changeProfilePicture,
+   getProfilePicture,
+   getDoctorList,
+   getDoctorProfile,
+   getDoctorSchedule,
+   getAppointmentDetails,
+   updateVitals,
+   getPrescriptionFileById,
+   cancelAppointment,
+   createUser,
+   searchUser,
 } = require("../Controller/Reception/receptionController");
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
 const { verifyIsReception } = require("../middleware/verifyIsReception");
@@ -24,7 +24,7 @@ router.post("/signup", receptionSignup);
 router.post("/login", receptionLogin);
 
 //Verify Reception Related Api
-// router.use(verifyIsLoggedIn, verifyIsReception);
+router.use(verifyIsLoggedIn, verifyIsReception);
 
 //Reception Profile Related API
 router.get("/profile", getReceptionProfile);
