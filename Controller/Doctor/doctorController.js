@@ -121,10 +121,6 @@ const doctorLogin = async (req, res, next) => {
 const getDoctorProfile = async (req, res, next) => {
    try {
       const user = req.user;
-      console.log(
-         "🚀 ~ file: doctorController.js:111 ~ getDoctorProfile ~ user:",
-         user
-      );
       const profile = await Doctor.findById(user.id)
          .populate("specializationID")
          .orFail();
@@ -217,7 +213,6 @@ const getAppointment = async (req, res, next) => {
 const getPrescription = async (req, res, next) => {
    try {
       const prescription = await Prescription.findById(req.params.id).orFail();
-      console.log("🚀 ~prescription:", prescription);
       return res.json({ message: "Success", prescription });
    } catch (error) {
       const err = new HttpError("Unable to xasdasd", 500);
