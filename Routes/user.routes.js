@@ -3,24 +3,21 @@ const router = express.Router();
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
 
 const {
-  UserSignUp,
-  doctorsList,
-  selectedDoctorSchedule,
-  UserLogin,
-  UserSignUpVerify,
-  UserLoginVerify,
-  updateUSerProfile,
-  getUserProfile,
-  deleteUser,
-  getLabReports,
-  getUserAppointments,
-  UserTest
+   UserSignUp,
+   doctorsList,
+   selectedDoctorSchedule,
+   UserLogin,
+   UserSignUpVerify,
+   UserLoginVerify,
+   updateUSerProfile,
+   getUserProfile,
+   deleteUser,
+   getLabReports,
+   getUserAppointments,
 } = require("../Controller/User/userController");
-router.get("/test", UserTest);
 
 router.post("/signup", UserSignUp);
 router.post("/signup/verify", UserSignUpVerify);
-
 router.post("/login", UserLogin);
 router.post("/login/verify", UserLoginVerify);
 router.use(verifyIsLoggedIn);
