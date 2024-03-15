@@ -278,7 +278,8 @@ const getUserAppointments = async (req, res, next) => {
          })
          .populate({
             path: "doctor",
-            select: "firstName lastName mobileNumber",
+            select:
+               "firstName lastName mobileNumber education profilePictureUrl",
          })
          .populate({
             path: "timeSlotId",
