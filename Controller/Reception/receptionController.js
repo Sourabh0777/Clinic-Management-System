@@ -83,7 +83,7 @@ const receptionLogin = async (req, res, next) => {
       if (login) {
          const { token, cookieParams, valuesPassInResponse } = login;
          res.cookie("access_token", token, cookieParams).json({
-            message: "Success user logged in.",
+            message: "Logged in.",
             user: valuesPassInResponse,
          });
       }
@@ -95,7 +95,6 @@ const receptionLogin = async (req, res, next) => {
 const getReceptionProfile = async (req, res, next) => {
    try {
       const user = req.user;
-      console.log("USER:", user);
       const profile = await commonGetProfile(user);
       return res.send(profile);
    } catch (error) {
@@ -180,6 +179,7 @@ const getDoctorList = async (req, res, next) => {
 const getDoctorProfile = async (req, res, next) => {
    try {
       const doctorProfile = await commonGetDoctorProfile(req.params.id);
+      console.log("🚀 ~ getDoctorProfile ~ doctorProfile:", doctorProfile);
       res.json({ message: "Success", doctorProfile });
    } catch (error) {
       const err = new HttpError("Unable find doctor profile", 500);
@@ -334,39 +334,3 @@ module.exports = {
    createUser,
    searchUser,
 };
-
-// const updateVitals = async (req, res, next) => {
-//   const uploadFileAbsolutePath = path.resolve(__dirname, uploadPrescriptionPath);
-//   try {
-//     const { weight , height, bloodPressure, bloodSugar ,priorDisease ,priorMedication   } = req.body;
-//     const vitals = { weight , height, bloodPressure, bloodSugar ,priorDisease ,priorMedication   };
-//     const prescription = await Prescription.findById(req.params.id);
-//     prescription.vitals = vitals;
-//     const prescriptionFile = req.files.prescription;
-//     if (!req.files || !!prescriptionFile === false) {
-//       const err = new HttpError("No files attached", 400);
-//       return next(err);
-//     }
-//     const prescriptionFileId = uuidv4();
-//     const extension = path.extname(prescriptionFile.name);
-//     const prescriptionFileName = prescriptionFileId + extension;
-//     const uploadPath = uploadFileAbsolutePath + "/" + prescriptionFileName;
-//     prescriptionFile.mv(uploadPath, function (err) {
-//       if (err) {
-//         const err = new HttpError("Unable to upload reports", 500);
-//         return next(err);
-//       }
-//     });
-//     const prescriptionUrl = "/prescription/" + prescriptionFileName;
-//     prescription.prescriptionUrl = prescriptionUrl;
-//     const appointmentId = prescription.appointmentId;
-//     const appointment = await Appointment.findById(appointmentId);
-//     appointment.status = "onGoing";
-//     await appointment.save();
-//     await prescription.save();
-//     res.json({ message: "Success", prescription });
-//   } catch (error) {
-//     const err = new HttpError("Unable to update vitals.", 500);
-//     return next(error || err);
-//   }
-// };
