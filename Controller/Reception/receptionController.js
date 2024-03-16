@@ -89,9 +89,7 @@ const receptionLogin = async (req, res, next) => {
 const getReceptionProfile = async (req, res, next) => {
   try {
     const user = req.user;
-    console.log("🚀 ~ getReceptionProfile ~ user:", user)
     const profile = await commonGetProfile(user);
-    console.log("🚀 ~~ profile:", profile);
     return res.send(profile);
   } catch (error) {
     const err = new HttpError("Unable to get Reception profile", 500);
