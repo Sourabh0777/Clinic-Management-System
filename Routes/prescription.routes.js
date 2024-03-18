@@ -3,6 +3,6 @@ const {
    getPrescriptions,
 } = require("../Controller/Prescription/PrescriptionController");
 const router = express.Router();
-router.get("/", getPrescriptions); //TODO:method suld be GET (prev -> POST)
+router.post("/", getPrescriptions);
 
 module.exports = router;
