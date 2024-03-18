@@ -1,8 +1,8 @@
 const express = require("express");
 const {
-   getPrescriptions,
+   getPrescription,
 } = require("../Controller/Prescription/PrescriptionController");
 const router = express.Router();
-router.post("/", getPrescriptions);
+router.post("/:id", getPrescription);
 
 module.exports = router;
