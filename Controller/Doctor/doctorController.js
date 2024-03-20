@@ -21,6 +21,7 @@ const { commonGetProfile } = require("../common/commonGetProfile");
 const { pictureValidate } = require("../../utils/pictureValidate");
 const { commonGetAppointmentById } = require("../common/CommonAppointment");
 const User = require("../../Models/UserModel");
+const { log } = require("console");
 
 const doctorSignup = async (req, res, next) => {
    try {
@@ -247,27 +248,15 @@ const updateVitals = async (req, res, next) => {
 const updatePrescription = async (req, res, next) => {
    try {
       const { id } = req.params;
-      const { canvasJson } = req.body;
-      const { paths, circles, stamps } = canvasJson;
-
+      const canvasJson = req.body;
       const prescription = await Prescription.findById(id);
-
       prescription.prescriptionData = {
-         paths: paths.map((path) => ({
-            segments: path.segments.map((segment) => ({
-               type: "Segment",
-               segments: [segment],
-            })),
-            color: path.color,
-         })),
-         circles: circles,
-         stamps: stamps,
+         paths: canvasJson,
       };
       await prescription.save();
-      console.log("🚀 prescription:", prescription);
       return res.json({ message: "Prescription Updated", prescription });
    } catch (error) {
-      const err = new HttpError("Unable to xasdasd", 500);
+      const err = new HttpError("Unable to update prescription", 500);
       return next(error || err);
    }
 };
