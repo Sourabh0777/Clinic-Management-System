@@ -2,6 +2,7 @@ const moment = require('moment');
 const Doctor = require('../../Models/DoctorModel');
 const ScheduleConfig = require('../../Models/ScheduleConfigModel');
 const TimeSlot = require('../../Models/TimeSlotModel');
+const { findUpcomingDates } = require('../../utils/findUpcomingDates');
 
 const createInitialSchedule = async (req, res, next) => {
   const inputFormat = 'hh:mm A';
@@ -30,36 +31,8 @@ const createInitialSchedule = async (req, res, next) => {
       weekday: 'long',
     });
 
-    let upcoming30Dates = [];
+    let upcoming30Dates = findUpcomingDates(workingDays);
     let next30WorkingDates = [];
-    for (let i = 0; i < workingDays.length; i++) {
-      const dayOfWeek = workingDays[i];
-      //Example
-      ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
-      //Start
-      if (todaysDayOfWeek == dayOfWeek) {
-        for (let j = 0; j < 30; j++) {
-          currentDate.setDate(currentDate.getDate() + 1);
-          const upcomingDate = new Date(currentDate);
-          upcoming30Dates.push(upcomingDate);
-        }
-      } else {
-        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const currentDay = currentDate.getDay();
-        const targetDayIndex = daysOfWeek.indexOf(workingDays[i]);
-        let daysUntilTarget = targetDayIndex - currentDay;
-        if (daysUntilTarget < 0) {
-          daysUntilTarget += 7;
-        }
-        let nextWorkingDate = new Date(currentDate.getTime());
-        nextWorkingDate.setDate(currentDate.getDate() + daysUntilTarget);
-        for (let j = 0; j < 30; j++) {
-          const upcomingDate = new Date(nextWorkingDate.getTime());
-          upcoming30Dates.push(upcomingDate);
-          nextWorkingDate.setDate(nextWorkingDate.getDate() + 1);
-        }
-      }
-    }
     for (let i = 0; i < upcoming30Dates.length; i++) {
       for (let j = 0; j < workingDays.length; j++) {
         if (upcoming30Dates[i].toLocaleString('en-us', { weekday: 'long' }) == workingDays[j]) {
