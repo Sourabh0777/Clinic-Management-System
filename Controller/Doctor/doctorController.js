@@ -263,8 +263,10 @@ const updatePrescription = async (req, res, next) => {
 const completeAppointment = async (req, res, next) => {
    try {
       const { id } = req.params;
+      const { nextCheckupDate } = req.body;
       const appointment = await Appointment.findById(id).orFail();
       appointment.status = "completed";
+      appointment.nextCheckupDate = nextCheckupDate;
       await appointment.save();
       return res.json({ message: "Appointment Completed", appointment });
    } catch (error) {
