@@ -8,10 +8,7 @@ const Appointment = require('../../Models/AppointmentModel');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
-const {
-  getDoctorService,
-  createDoctorService,
-} = require('../../Services/Doctor/DoctorService');
+const { getDoctorService, createDoctorService } = require('../../Services/Doctor/DoctorService');
 const { nodeEnv, uploadImagePath } = require('../../config/config');
 const { checkIfUserExists } = require('../../helpers/helperFunctions');
 const { generateAuthToken } = require('../../utils/generateAuthToken');
@@ -24,31 +21,9 @@ const User = require('../../Models/UserModel');
 
 const doctorSignup = async (req, res, next) => {
   try {
-    const {
-      firstName,
-      lastName,
-      mobileNumber,
-      specializationID,
-      experience,
-      rating,
-      chargesForOPDExtra,
-      emailAddress,
-      language,
-      password,
-      education,
-      pricePerHour,
-    } = req.body;
+    const { firstName, lastName, mobileNumber, specializationID, experience, rating, chargesForOPDExtra, emailAddress, language, password, education, pricePerHour } = req.body;
 
-    if (
-      !firstName ||
-      !lastName ||
-      !mobileNumber ||
-      !experience ||
-      !rating ||
-      !chargesForOPDExtra ||
-      !emailAddress ||
-      !password
-    ) {
+    if (!firstName || !lastName || !mobileNumber || !experience || !rating || !chargesForOPDExtra || !emailAddress || !password) {
       throw new HttpError('All fields are required', 400);
     }
     const hashedPassword = await hashPassword(password);
@@ -122,9 +97,7 @@ const doctorLogin = async (req, res, next) => {
 const getDoctorProfile = async (req, res, next) => {
   try {
     const user = req.user;
-    const profile = await Doctor.findById(user.id)
-      .populate('specializationID')
-      .orFail();
+    const profile = await Doctor.findById(user.id).populate('specializationID').orFail();
     return res.json({ message: 'Success', profile });
   } catch (error) {
     const err = new HttpError('Unable to get doctor profile', 500);
@@ -176,10 +149,7 @@ const changeProfilePicture = async (req, res, next) => {
 const getProfilePicture = async (req, res, next) => {
   try {
     const { pictureId } = req.params;
-    const filePath = path.join(
-      __dirname,
-      '../../FilesUploaded/ProfilePictures/' + pictureId,
-    );
+    const filePath = path.join(__dirname, '../../FilesUploaded/ProfilePictures/' + pictureId);
     if (fs.existsSync(filePath)) {
       return res.sendFile(filePath);
     } else {
@@ -196,9 +166,7 @@ const getSchedule = async (req, res, next) => {
   try {
     const user = req.user;
     const doctor = await Doctor.findById(user.id);
-    const schedule = await ScheduleConfig.findById(
-      doctor.scheduleConfigID,
-    ).orFail();
+    const schedule = await ScheduleConfig.findById(doctor.scheduleConfigID).orFail();
     return res.json({ message: 'Success', schedule });
   } catch (error) {
     const err = new HttpError('Unable to get schedule', 500);
@@ -230,10 +198,7 @@ const getPrescription = async (req, res, next) => {
 const getAppointments = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const appointments = await Appointment.find({ doctor: id })
-      .populate('user')
-      .populate('doctor')
-      .populate('timeSlotId');
+    const appointments = await Appointment.find({ doctor: id }).populate('user').populate('doctor').populate('timeSlotId');
     return res.send({ message: 'working', appointments });
   } catch (error) {
     const err = new HttpError('Unable to fetch  appointments', 500);
@@ -284,8 +249,10 @@ const updatePrescription = async (req, res, next) => {
 const completeAppointment = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const { nextCheckupDate } = req.body;
     const appointment = await Appointment.findById(id).orFail();
     appointment.status = 'completed';
+    appointment.nextCheckupDate = nextCheckupDate;
     await appointment.save();
     return res.json({ message: 'Appointment Completed', appointment });
   } catch (error) {
@@ -309,32 +276,14 @@ const searchUser = async (req, res, next) => {
 };
 const createUser = async (req, res, next) => {
   try {
-    const {
-      firstName,
-      lastName,
-      gender,
-      mobileNumber,
-      emailAddress,
-      dateOfBirth,
-      age,
-    } = req.body;
-    if (
-      !firstName ||
-      !lastName ||
-      !dateOfBirth ||
-      !mobileNumber ||
-      !emailAddress ||
-      !age
-    ) {
+    const { firstName, lastName, gender, mobileNumber, emailAddress, dateOfBirth, age } = req.body;
+    if (!firstName || !lastName || !dateOfBirth || !mobileNumber || !emailAddress || !age) {
       const err = new HttpError('All input fields are required.', 500);
       return next(err);
     }
     const existingUser = await User.findOne({ mobileNumber });
     if (existingUser) {
-      const err = new HttpError(
-        'User with this mobile number already exists.',
-        422,
-      );
+      const err = new HttpError('User with this mobile number already exists.', 422);
       return next(err);
     }
     const user = await User.create({
@@ -355,15 +304,7 @@ const createUser = async (req, res, next) => {
 const UpdateDoctorProfile = async (req, res, next) => {
   try {
     const user = req.user;
-    const {
-      firstName,
-      lastName,
-      mobileNumber,
-      chargesForOPDExtra,
-      emailAddress,
-      education,
-      experience,
-    } = req.body;
+    const { firstName, lastName, mobileNumber, chargesForOPDExtra, emailAddress, education, experience } = req.body;
 
     const updateData = {
       firstName,
@@ -375,14 +316,10 @@ const UpdateDoctorProfile = async (req, res, next) => {
       experience,
     };
     console.log('🚀 ~ UpdateDoctorProfile ~ updateData:', updateData);
-    const updatedDoctor = await Doctor.findOneAndUpdate(
-      { _id: user.id },
-      updateData,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
+    const updatedDoctor = await Doctor.findOneAndUpdate({ _id: user.id }, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedDoctor) {
       throw new HttpError('Doctor not found', 404);
