@@ -29,6 +29,9 @@ const {
    UpdateAppointment,
    getAcceptedAppointments,
 } = require("../Controller/Appointment/AppointmentController");
+const {
+   updateTimeSlot,
+} = require("../Controller/Appointment/timeSlotController");
 
 router.post("/signup", doctorSignup);
 router.post("/login", doctorLogin);
@@ -55,5 +58,7 @@ router.post("/specialization", addSpecialization);
 //User
 router.post("/searchUser", searchUser);
 router.post("/createUser", createUser);
+//update time slot --- disable or enable
+router.put("/updateTimeSlot/:id", updateTimeSlot);
 
 module.exports = router;

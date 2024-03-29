@@ -14,4 +14,17 @@ const getTimeSlotDetails = async (req, res, next) => {
       return next(err);
    }
 };
-module.exports = { getTimeSlotDetails };
+const updateTimeSlot = async (req, res, next) => {
+   try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const timeSlot = await TimeSlot.findById(id);
+      timeSlot.status = status;
+      await timeSlot.save();
+      return res.json({ message: "Appointment status updated." });
+   } catch (error) {
+      const err = new HttpError("Unable to update time slot", 500);
+      return next(err);
+   }
+};
+module.exports = { getTimeSlotDetails, updateTimeSlot };
