@@ -23,8 +23,6 @@ async function sendMessage(data) {
 }
 
 function getTextMessageInput(recipientNumber, baseMessage, patientName, appointmentDate) {
-  const formattedText = baseMessage.replace('{{1}}', patientName).replace('{{2}}', appointmentDate);
-  console.log('🚀 ~ getTextMessageInput ~ formattedText:', formattedText);
 
   return JSON.stringify({
     messaging_product: 'whatsapp',
@@ -42,11 +40,11 @@ function getTextMessageInput(recipientNumber, baseMessage, patientName, appointm
           parameters: [
             {
               type: 'text',
-              text: '1',
+              text: patientName,
             },
             {
               type: 'text',
-              text: '2',
+              text: appointmentDate,
             },
           ],
         },
