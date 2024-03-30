@@ -10,14 +10,18 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(fileUpload());
 app.use(cors());
-//remove later
-
+//remove later whatsapp
 const { sendMessage, getTextMessageInput } = require('./utils/meta/whatsapp');
 
 require('dotenv').config();
 app.post('/whatsappTesting', function (req, res, next) {
   console.log('working');
-  var data = getTextMessageInput('917042987761', 'Working');
+  const recipientNumber = '917042987761';
+  const baseMessage = 'Hi {{1}}, Just following up on our appointment on {{2}}. Hope everything went well!';
+  const patientName = 'John Doe';
+  const appointmentDate = '2024-04-05'; // Format the date as YYYY-MM-DD
+
+  var data = getTextMessageInput(recipientNumber, baseMessage, patientName, appointmentDate);
 
   sendMessage(data)
     .then(function (response) {

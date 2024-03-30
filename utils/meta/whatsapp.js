@@ -22,18 +22,35 @@ async function sendMessage(data) {
   }
 }
 
-function getTextMessageInput(recipient, text) {
-  console.log('🚀 ~ getTextMessageInput ~ recipient:', recipient);
-  console.log('getTextMessageInput executed');
+function getTextMessageInput(recipientNumber, baseMessage, patientName, appointmentDate) {
+  const formattedText = baseMessage.replace('{{1}}', patientName).replace('{{2}}', appointmentDate);
+  console.log('🚀 ~ getTextMessageInput ~ formattedText:', formattedText);
+
   return JSON.stringify({
     messaging_product: 'whatsapp',
-    to: recipient,
+    to: recipientNumber,
     type: 'template',
     template: {
-      name: 'hello_world',
+      name: 'next_appointment_date',
       language: {
         code: 'en_US',
+        policy: 'deterministic',
       },
+      components: [
+        {
+          type: 'body',
+          parameters: [
+            {
+              type: 'text',
+              text: '1',
+            },
+            {
+              type: 'text',
+              text: '2',
+            },
+          ],
+        },
+      ],
     },
   });
 }
