@@ -158,7 +158,6 @@ const UserLoginVerify = async (req, res, next) => {
 const doctorsList = async (req, res, next) => {
    try {
       const doctorsList = await Doctor.find({}).select().orFail();
-
       res.json({ message: "Success", doctorsList });
    } catch (error) {
       const err = new HttpError("unable to get doctors list", 500);
@@ -204,7 +203,6 @@ const updateUSerProfile = async (req, res, next) => {
       user.emailAddress = emailAddress || user.emailAddress;
       user.age = age || user.age;
       await user.save();
-      console.log("🚀 ~  ~ user:", user);
       res.send("Working");
    } catch (error) {
       const err = new HttpError("unable to update profile", 500);

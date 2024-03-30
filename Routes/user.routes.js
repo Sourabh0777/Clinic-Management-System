@@ -27,8 +27,6 @@ router.put("/updateProfile", updateUSerProfile);
 router.get("/getUserProfile", getUserProfile);
 router.get("/getLabReports", getLabReports);
 router.get("/appointments", getUserAppointments);
-// router.get("/getLabReports", getUserUpcomingAppointment);
-
 router.delete("/deleteUser", deleteUser);
 
 module.exports = router;

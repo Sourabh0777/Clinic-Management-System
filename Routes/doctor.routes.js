@@ -51,7 +51,7 @@ router.get("/getAcceptedAppointments", getAcceptedAppointments);
 router.put("/completeAppointment/:id", completeAppointment);
 //Vitals / Prescription
 router.post("/updateVitals", updateVitals);
-router.put("/updatePrescription/:id", updatePrescription); // Update Prescription pad
+router.put("/updatePrescription/:id", updatePrescription);
 router.get("/prescription/:id", getPrescription);
 //Specialization
 router.post("/specialization", addSpecialization);
