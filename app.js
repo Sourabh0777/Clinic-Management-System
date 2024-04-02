@@ -17,11 +17,10 @@ require('dotenv').config();
 app.post('/whatsappTesting', function (req, res, next) {
   console.log('working');
   const recipientNumber = '917042987761';
-  const baseMessage = 'Hi {{1}}, Just following up on our appointment on {{2}}. Hope everything went well!';
   const patientName = 'John Doe';
-  const appointmentDate = '2024-04-05'; // Format the date as YYYY-MM-DD
+  const appointmentDate = '2024-04-05';
 
-  var data = getTextMessageInput(recipientNumber, baseMessage, patientName, appointmentDate);
+  var data = getTextMessageInput(recipientNumber, patientName, appointmentDate);
 
   sendMessage(data)
     .then(function (response) {

@@ -22,14 +22,13 @@ async function sendMessage(data) {
   }
 }
 
-function getTextMessageInput(recipientNumber, baseMessage, patientName, appointmentDate) {
-
+function getTextMessageInput(recipientNumber, patientName, appointmentDate) {
   return JSON.stringify({
     messaging_product: 'whatsapp',
     to: recipientNumber,
     type: 'template',
     template: {
-      name: 'next_appointment_date',
+      name: 'appointment1',
       language: {
         code: 'en_US',
         policy: 'deterministic',
