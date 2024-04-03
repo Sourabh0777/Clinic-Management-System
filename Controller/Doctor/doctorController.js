@@ -17,11 +17,13 @@ const { checkIfUserExists } = require("../../helpers/helperFunctions");
 const { generateAuthToken } = require("../../utils/generateAuthToken");
 const { hashPassword } = require("../../utils/hashPasswords");
 const { commonLogin } = require("../common/CommonLogin");
-const { commonGetProfile } = require("../common/commonGetProfile");
 const { pictureValidate } = require("../../utils/pictureValidate");
 const { commonGetAppointmentById } = require("../common/CommonAppointment");
 const User = require("../../Models/UserModel");
-const { log } = require("console");
+const {
+   getTextMessageInput,
+   sendMessage,
+} = require("../../utils/meta/whatsapp");
 
 const doctorSignup = async (req, res, next) => {
    try {
@@ -265,9 +267,21 @@ const completeAppointment = async (req, res, next) => {
       const { id } = req.params;
       const { nextCheckupDate } = req.body;
       const appointment = await Appointment.findById(id).orFail();
+      const user = await User.findById(appointment.user);
       appointment.status = "completed";
       appointment.nextCheckupDate = nextCheckupDate;
+      //Whatsapp Message Functionality Goes HERE
+      const date = new Date(nextCheckupDate);
+      const formatedNextCheckupDate = date.toLocaleString("en-IN", {
+         dateStyle: "long",
+      });
+      const data = getTextMessageInput(
+         "919807362721",
+         user.firstName,
+         formatedNextCheckupDate
+      );
       await appointment.save();
+      sendMessage(data);
       return res.json({ message: "Appointment Completed", appointment });
    } catch (error) {
       const err = new HttpError("Unable to update appointment", 500);
