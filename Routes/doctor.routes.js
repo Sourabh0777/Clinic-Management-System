@@ -16,6 +16,11 @@ const {
    searchUser,
    createUser,
    UpdateDoctorProfile,
+   getTotalAppointments,
+   getTotalCanceledAppointments,
+   getTotalPendingAppointments,
+   getTotalCompletedAppointments,
+   getTotalPatientsCount,
 } = require("../Controller/Doctor/doctorController");
 const {
    addSpecialization,
@@ -60,5 +65,10 @@ router.post("/searchUser", searchUser);
 router.post("/createUser", createUser);
 //update time slot --- disable or enable
 router.put("/updateTimeSlot/:id", updateTimeSlot);
+router.get("/total_appointments/:id", getTotalAppointments);
+router.get("/total_canceled_appointments/:id", getTotalCanceledAppointments);
+router.get("/total_Pending_appointments/:id", getTotalPendingAppointments);
+router.get("/total_completed_appointments/:id", getTotalCompletedAppointments);
+router.get("/total_patients/:id", getTotalPatientsCount);
 
 module.exports = router;

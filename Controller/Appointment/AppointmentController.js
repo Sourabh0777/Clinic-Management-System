@@ -4,6 +4,7 @@ const ScheduleConfig = require("../../Models/ScheduleConfigModel");
 const TimeSlot = require("../../Models/TimeSlotModel");
 const HttpError = require("../../Models/http-error");
 const mongoose = require("mongoose");
+const schedule = require("node-schedule");
 
 const createAppointment = async (req, res, next) => {
    const session = await mongoose.startSession();
@@ -68,6 +69,15 @@ const createAppointment = async (req, res, next) => {
       timeSlot.status = "booked";
       timeSlot.appointmentID = appointmentId;
       await timeSlot.save();
+      //TODO:Schedule WhatsApp Message Testing
+      const date = new Date(timeSlot.slotStartTime);
+      // Subtract 2 days
+      date.setDate(date.getDate() - 1);
+      console.log("1 day back date:", date);
+      schedule.scheduleJob(date, () => {
+         console.log("Schedule Job is Working");
+      });
+
       await session.commitTransaction();
       session.endSession();
 
