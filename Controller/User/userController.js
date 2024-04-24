@@ -177,7 +177,6 @@ const selectedDoctorSchedule = async (req, res, next) => {
       return next(error || err);
    }
 };
-
 const updateUSerProfile = async (req, res, next) => {
    const { id } = req.user;
    try {
@@ -234,7 +233,6 @@ const deleteUser = async (req, res, next) => {
       return next(error || err);
    }
 };
-
 const getLabReports = async (req, res, next) => {
    try {
       const { id } = req.user;
@@ -265,7 +263,6 @@ const getLabReports = async (req, res, next) => {
       return next(error || err);
    }
 };
-
 const getUserAppointments = async (req, res, next) => {
    try {
       const { id } = req.user;

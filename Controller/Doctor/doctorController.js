@@ -389,75 +389,42 @@ const UpdateDoctorProfile = async (req, res, next) => {
       return next(error || err);
    }
 };
-const getTotalAppointments = async (req, res, next) => {
+const getDashboardData = async (req, res, next) => {
    try {
       const id = req.params.id;
       const totalAppointments = await Appointment.countDocuments({
          doctor: id,
       });
-      res.json({ totalAppointments });
-   } catch (error) {
-      res.status(500).json({
-         error: "An error occurred while fetching appointment count.",
-      });
-   }
-};
-const getTotalCanceledAppointments = async (req, res, next) => {
-   try {
-      const id = req.params.id;
       const totalCanceledAppointments = await Appointment.countDocuments({
          doctor: id,
          status: "canceled",
       });
-      res.json({ totalCanceledAppointments });
-   } catch (error) {
-      res.status(500).json({
-         error: "An error occurred while fetching appointment count.",
-      });
-   }
-};
-const getTotalPendingAppointments = async (req, res, next) => {
-   try {
-      const id = req.params.id;
       const totalPendingAppointments = await Appointment.countDocuments({
          doctor: id,
          status: "pending",
       });
-      res.json({ totalPendingAppointments });
-   } catch (error) {
-      res.status(500).json({
-         error: "An error occurred while fetching appointment count.",
-      });
-   }
-};
-const getTotalCompletedAppointments = async (req, res, next) => {
-   try {
-      const id = req.params.id;
       const totalCompletedAppointments = await Appointment.countDocuments({
          doctor: id,
          status: "completed",
       });
-      res.json({ totalCompletedAppointments });
-   } catch (error) {
-      res.status(500).json({
-         error: "An error occurred while fetching appointment count.",
-      });
-   }
-};
-const getTotalPatientsCount = async (req, res, next) => {
-   try {
-      const id = req.params.id;
       const uniqueUsers = await Appointment.distinct("user", {
          doctor: id,
       });
       const totalUniqueUsers = uniqueUsers.length;
-      res.json({ totalUniqueUsers });
+      res.json({
+         totalAppointments,
+         totalCanceledAppointments,
+         totalPendingAppointments,
+         totalCompletedAppointments,
+         totalUniqueUsers,
+      });
    } catch (error) {
       res.status(500).json({
-         error: "An error occurred while counting unique users.",
+         error: "An error occurred while fetching dashboard data.",
       });
    }
 };
+
 module.exports = {
    doctorSignup,
    doctorLogin,
@@ -474,9 +441,5 @@ module.exports = {
    searchUser,
    createUser,
    UpdateDoctorProfile,
-   getTotalAppointments,
-   getTotalCanceledAppointments,
-   getTotalPendingAppointments,
-   getTotalCompletedAppointments,
-   getTotalPatientsCount,
+   getDashboardData,
 };
