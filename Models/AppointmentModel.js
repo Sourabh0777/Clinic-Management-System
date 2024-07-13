@@ -41,7 +41,7 @@ const appointmentSchema = new mongoose.Schema(
          default: "Cash",
          enum: ["Cash", "Card", "UPI", "Cheque"],
       },
-      totalAmount: { type: Number },
+      totalAmount: { type: Number, required: true },
       appointmentNotes: { type: String },
       nextCheckupDate: {
          type: Date,
