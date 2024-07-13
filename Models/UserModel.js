@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema(
       firstName: {
          type: String,
          trim: true,
+         required: true,
       },
       lastName: {
          type: String,
@@ -17,10 +18,11 @@ const userSchema = new mongoose.Schema(
          type: Date,
       },
       age: {
-         type: Number,
+         type: String,
+         required: true,
       },
       mobileNumber: {
-         type: Number,
+         type: String,
          required: [true, "Please enter contact information"],
          unique: true,
          trim: true,

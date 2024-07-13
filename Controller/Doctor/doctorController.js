@@ -4,14 +4,10 @@ const ScheduleConfig = require("../../Models/ScheduleConfigModel");
 const Prescription = require("../../Models/PrescriptionModel");
 const fs = require("fs");
 const Appointment = require("../../Models/AppointmentModel");
-
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
-const {
-   getDoctorService,
-   createDoctorService,
-} = require("../../Services/Doctor/DoctorService");
+const { createDoctorService } = require("../../Services/Doctor/DoctorService");
 const { nodeEnv, uploadImagePath } = require("../../config/config");
 const { checkIfUserExists } = require("../../helpers/helperFunctions");
 const { generateAuthToken } = require("../../utils/generateAuthToken");
@@ -20,10 +16,6 @@ const { commonLogin } = require("../common/CommonLogin");
 const { pictureValidate } = require("../../utils/pictureValidate");
 const { commonGetAppointmentById } = require("../common/CommonAppointment");
 const User = require("../../Models/UserModel");
-const {
-   getTextMessageInput,
-   sendMessage,
-} = require("../../utils/meta/whatsapp");
 
 const doctorSignup = async (req, res, next) => {
    try {
@@ -270,18 +262,7 @@ const completeAppointment = async (req, res, next) => {
       const user = await User.findById(appointment.user);
       appointment.status = "completed";
       appointment.nextCheckupDate = nextCheckupDate;
-      //Whatsapp Message Functionality Goes HERE
-      const date = new Date(nextCheckupDate);
-      const formatedNextCheckupDate = date.toLocaleString("en-IN", {
-         dateStyle: "long",
-      });
-      const data = getTextMessageInput(
-         "919807362721",
-         user.firstName,
-         formatedNextCheckupDate
-      );
       await appointment.save();
-      sendMessage(data);
       return res.json({ message: "Appointment Completed", appointment });
    } catch (error) {
       const err = new HttpError("Unable to update appointment", 500);
@@ -290,16 +271,19 @@ const completeAppointment = async (req, res, next) => {
 };
 const searchUser = async (req, res, next) => {
    try {
-      const { mobileNumber } = req.body;
-      const user = await User.find({ mobileNumber: mobileNumber });
-      if (user.length < 1) {
-         const err = new HttpError("No user found.", 500);
+      const { name } = req.body;
+      const query = {
+         firstName: { $regex: new RegExp(name, "i") }, // case-insensitive search for name
+      };
+      const users = await User.find(query);
+      if (users.length < 1) {
+         const err = new HttpError("No users found.", 404); // Changed to 404 for not found
          return next(err);
       }
-      return res.json({ message: "User Found", user });
+      return res.json({ message: "Users Found", users });
    } catch (error) {
-      const err = new HttpError("Unable to find user.", 500);
-      return next(error || err);
+      const err = new HttpError("Unable to find users.", 500);
+      return next(err);
    }
 };
 const createUser = async (req, res, next) => {
@@ -313,14 +297,7 @@ const createUser = async (req, res, next) => {
          dateOfBirth,
          age,
       } = req.body;
-      if (
-         !firstName ||
-         !lastName ||
-         !dateOfBirth ||
-         !mobileNumber ||
-         !emailAddress ||
-         !age
-      ) {
+      if (!firstName || !lastName || !gender || !mobileNumber || !age) {
          const err = new HttpError("All input fields are required.", 500);
          return next(err);
       }

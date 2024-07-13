@@ -1,11 +1,7 @@
 const Appointment = require("../../Models/AppointmentModel");
 const Prescription = require("../../Models/PrescriptionModel");
-const ScheduleConfig = require("../../Models/ScheduleConfigModel");
-const TimeSlot = require("../../Models/TimeSlotModel");
 const HttpError = require("../../Models/http-error");
 const mongoose = require("mongoose");
-const schedule = require("node-schedule");
-
 const createAppointment = async (req, res, next) => {
    const session = await mongoose.startSession();
    session.startTransaction();
@@ -16,10 +12,8 @@ const createAppointment = async (req, res, next) => {
          doctor,
          reception,
          appointmentDate,
-         timeSlotId,
          appointmentType,
          status,
-         consultationFee,
          paymentStatus,
          paymentMethod,
          totalAmount,
@@ -27,14 +21,13 @@ const createAppointment = async (req, res, next) => {
          nextCheckupDate,
       } = req.body;
 
-      if (
-         !(user && doctor && appointmentDate && timeSlotId && appointmentType)
-      ) {
+      if (!(user && doctor && appointmentDate && appointmentType)) {
          throw new HttpError("All input fields are required", 422);
       }
-
-      const prescriptionId = new mongoose.Types.ObjectId(); // Generate a new ObjectId for prescription
-      const appointmentId = new mongoose.Types.ObjectId(); // Generate a new ObjectId for appointment
+      // Generate a new ObjectId for prescription
+      const prescriptionId = new mongoose.Types.ObjectId();
+      // Generate a new ObjectId for appointment
+      const appointmentId = new mongoose.Types.ObjectId();
 
       const appointment = await Appointment.create({
          _id: appointmentId,
@@ -43,10 +36,8 @@ const createAppointment = async (req, res, next) => {
          reception,
          prescription: prescriptionId,
          appointmentDate,
-         timeSlotId,
          appointmentType,
          status,
-         consultationFee,
          paymentStatus,
          paymentMethod,
          totalAmount,
@@ -59,23 +50,6 @@ const createAppointment = async (req, res, next) => {
          date: appointmentDate,
          user: user,
          appointmentId: appointment._id, // Update the appointmentId in Prescription
-      });
-      const timeSlot = await TimeSlot.findById(timeSlotId);
-      if (!timeSlot) {
-         const err = new HttpError("No time slot found", 400);
-         session.abortTransaction();
-         return next(err);
-      }
-      timeSlot.status = "booked";
-      timeSlot.appointmentID = appointmentId;
-      await timeSlot.save();
-      //TODO:Schedule WhatsApp Message Testing
-      const date = new Date(timeSlot.slotStartTime);
-      // Subtract 2 days
-      date.setDate(date.getDate() - 1);
-      console.log("1 day back date:", date);
-      schedule.scheduleJob(date, () => {
-         console.log("Schedule Job is Working");
       });
 
       await session.commitTransaction();
@@ -112,12 +86,11 @@ const getAcceptedAppointments = async (req, res, next) => {
          $or: [{ status: "accepted" }, { paymentMethod: "Paid" }],
       })
          .populate("doctor")
-         .populate("timeSlotId")
          .populate("user");
 
       return res.json({ message: "Success", appointments });
    } catch (error) {
-      const err = new HttpError("Unable to xasdasd", 500);
+      const err = new HttpError("Unable to fetch accepted appointments", 500);
       return next(error || err);
    }
 };
