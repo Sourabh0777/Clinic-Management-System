@@ -2,14 +2,12 @@ const express = require("express");
 const router = express.Router();
 const {
    uploadReportFiles,
-   createReportType,
    getReport,
    getReports,
 } = require("../Controller/LabReports/LabReportController");
 
-router.post("/createReportType", createReportType);
 router.post("/uploadReports", uploadReportFiles);
-router.get("/report/:reportId", getReport);
-router.post("/reports", getReports);
+router.get("/report/:id", getReport);
+router.get("/reports/:userId", getReports);
 
 module.exports = router;

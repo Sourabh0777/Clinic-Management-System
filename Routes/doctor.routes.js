@@ -22,6 +22,7 @@ const {
    getTotalCompletedAppointments,
    getTotalPatientsCount,
    getDashboardData,
+   getPendingAppointments,
 } = require("../Controller/Doctor/doctorController");
 const {
    addSpecialization,
@@ -51,6 +52,7 @@ router.get("/schedule", getSchedule);
 router.post("/createSchedule", createInitialSchedule);
 //Appointment
 router.get("/appointments/:id", getAppointments);
+router.get("/getPendingAppointments", getPendingAppointments);
 router.get("/appointment/:id", getAppointment);
 router.put("/appointment/:id", UpdateAppointment);
 router.get("/getAcceptedAppointments", getAcceptedAppointments);

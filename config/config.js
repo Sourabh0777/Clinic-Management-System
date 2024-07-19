@@ -1,5 +1,5 @@
 const passwordValidator =
-  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=.*[0-9]).{8,}$/;
+   /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=.*[0-9]).{8,}$/;
 const timeRegex = /^(0[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/;
 const url = process.env.MONGO_URL;
 const port = process.env.PORT || 5000;
@@ -9,26 +9,26 @@ const jwtExpiresIn = { expiresIn: "7h" };
 const cookieMaxAge = 1000 * 60 * 60 * 24 * 7;
 const uploadReportsDirectoryPath = "../../FilesUploaded/LabReports";
 const uploadImagePath = "../../FilesUploaded/ProfilePictures";
-const uploadPrescriptionPath =  "../../FilesUploaded/Prescriptions"
-const baseUrl = "http://localhost:5000/"; // Replace with your server's address
+const uploadPrescriptionPath = "../../FilesUploaded/Prescriptions";
+const baseUrl = "http://localhost:8000/"; // Replace with your server's address
 //Twilio
 const twilioSid = process.env.TWILIOSID;
 const twilioAuthToken = process.env.TWILIOAUTHTOKEN;
 const twilioNo = process.env.TWILION;
 module.exports = {
-  url,
-  port,
-  passwordValidator,
-  timeRegex,
-  nodeEnv,
-  secretKey,
-  jwtExpiresIn,
-  cookieMaxAge,
-  uploadReportsDirectoryPath,
-  baseUrl,
-  uploadImagePath,
-  twilioSid,
-  twilioAuthToken,
-  twilioNo,
-  uploadPrescriptionPath
+   url,
+   port,
+   passwordValidator,
+   timeRegex,
+   nodeEnv,
+   secretKey,
+   jwtExpiresIn,
+   cookieMaxAge,
+   uploadReportsDirectoryPath,
+   baseUrl,
+   uploadImagePath,
+   twilioSid,
+   twilioAuthToken,
+   twilioNo,
+   uploadPrescriptionPath,
 };

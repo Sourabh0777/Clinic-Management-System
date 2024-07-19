@@ -219,14 +219,29 @@ const getAppointments = async (req, res, next) => {
       const { id } = req.params;
       const appointments = await Appointment.find({ doctor: id })
          .populate("user")
-         .populate("doctor")
-         .populate("timeSlotId");
+         .populate("doctor");
       return res.send({ message: "working", appointments });
    } catch (error) {
       const err = new HttpError("Unable to fetch  appointments", 500);
       return next(error || err);
    }
 };
+const getPendingAppointments = async (req, res, next) => {
+   try {
+      const user = req.user;
+      const appointments = await Appointment.find({
+         doctor: user.id,
+         status: "pending",
+      })
+         .populate("user")
+         .populate("doctor");
+      return res.send({ message: "working", appointments });
+   } catch (error) {
+      const err = new HttpError("Unable to fetch appointments", 500);
+      return next(error || err);
+   }
+};
+
 const updateVitals = async (req, res, next) => {
    try {
       const { prescriptionId, vitals } = req.body;
@@ -419,4 +434,5 @@ module.exports = {
    createUser,
    UpdateDoctorProfile,
    getDashboardData,
+   getPendingAppointments,
 };
