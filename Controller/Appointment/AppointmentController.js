@@ -131,7 +131,6 @@ const getAcceptedAppointments = async (req, res, next) => {
 const getUserPastAppointments = async (req, res) => {
    try {
       const userId = req.params.userId;
-
       const pastAppointments = await Appointment.find({
          user: userId,
          status: "completed",

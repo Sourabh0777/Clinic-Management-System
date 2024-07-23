@@ -22,25 +22,26 @@ const doctorSignup = async (req, res, next) => {
       const {
          firstName,
          lastName,
+         gender,
          mobileNumber,
-         specializationID,
+         profilePictureUrl,
+         specialization,
          experience,
-         rating,
-         chargesForOPDExtra,
+         consultationFee,
+         qualifications,
          emailAddress,
-         language,
          password,
-         education,
-         pricePerHour,
       } = req.body;
 
       if (
          !firstName ||
          !lastName ||
+         !gender ||
          !mobileNumber ||
+         !specialization ||
          !experience ||
-         !rating ||
-         !chargesForOPDExtra ||
+         !consultationFee ||
+         !qualifications ||
          !emailAddress ||
          !password
       ) {
@@ -51,16 +52,14 @@ const doctorSignup = async (req, res, next) => {
       const doctor = await createDoctorService({
          firstName,
          lastName,
+         gender,
          mobileNumber,
-         specializationID,
+         specialization,
          experience,
-         rating,
-         chargesForOPDExtra,
+         consultationFee,
+         qualifications,
          emailAddress,
          password: hashedPassword,
-         language,
-         education,
-         pricePerHour,
       });
       const values = {
          id: doctor.id,
@@ -117,14 +116,16 @@ const getDoctorProfile = async (req, res, next) => {
    try {
       const user = req.user;
       const profile = await Doctor.findById(user.id)
-         .populate("specializationID")
+         .select("-password")
          .orFail();
-      return res.json({ message: "Success", profile });
+      return res.status(200).json({ message: "Success", profile });
    } catch (error) {
       const err = new HttpError("Unable to get doctor profile", 500);
       return next(error || err);
    }
 };
+
+//FIXME: change it to cloudinary
 const changeProfilePicture = async (req, res, next) => {
    const uploadImageAbsolutePath = path.resolve(__dirname, uploadImagePath);
 
@@ -234,14 +235,14 @@ const getPendingAppointments = async (req, res, next) => {
          status: "pending",
       })
          .populate("user")
-         .populate("doctor");
+         .populate("doctor")
+         .populate("prescription");
       return res.send({ message: "working", appointments });
    } catch (error) {
       const err = new HttpError("Unable to fetch appointments", 500);
       return next(error || err);
    }
 };
-
 const updateVitals = async (req, res, next) => {
    try {
       const { prescriptionId, vitals } = req.body;
@@ -257,16 +258,33 @@ const updateVitals = async (req, res, next) => {
 const updatePrescription = async (req, res, next) => {
    try {
       const { id } = req.params;
-      const canvasJson = req.body;
+      const { canvasJson } = req.body; // Destructure canvasJson from req.body
+
+      // Update validation to accept an array of strings
+      if (
+         !Array.isArray(canvasJson) ||
+         !canvasJson.every((item) => typeof item === "string")
+      ) {
+         throw new HttpError("Invalid data format", 400); // Validate incoming data
+      }
+
       const prescription = await Prescription.findById(id);
+      if (!prescription) {
+         throw new HttpError("Prescription not found", 404);
+      }
+
       prescription.prescriptionData = {
          paths: canvasJson,
       };
+
       await prescription.save();
       return res.json({ message: "Prescription Updated", prescription });
    } catch (error) {
-      const err = new HttpError("Unable to update prescription", 500);
-      return next(error || err);
+      const err = new HttpError(
+         error.message || "Unable to update prescription",
+         500
+      );
+      return next(err);
    }
 };
 const completeAppointment = async (req, res, next) => {
@@ -274,7 +292,6 @@ const completeAppointment = async (req, res, next) => {
       const { id } = req.params;
       const { nextCheckupDate } = req.body;
       const appointment = await Appointment.findById(id).orFail();
-      const user = await User.findById(appointment.user);
       appointment.status = "completed";
       appointment.nextCheckupDate = nextCheckupDate;
       await appointment.save();
@@ -339,6 +356,7 @@ const createUser = async (req, res, next) => {
       return next(error || err);
    }
 };
+//FIXME: update according to the model
 const UpdateDoctorProfile = async (req, res, next) => {
    try {
       const user = req.user;

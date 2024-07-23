@@ -93,7 +93,11 @@ const getReports = async (req, res, next) => {
    }
 
    try {
-      const reports = await LabReport.find({ user: userId })
+      const reports = await LabReport.find({
+         user: userId,
+
+         reportName: { $ne: "Prescription" },
+      })
          .populate({ path: "user", select: "firstName lastName" })
          .populate({ path: "doctor", select: "firstName lastName" })
          .sort({ createdAt: -1 }); // Optional: Sort by creation date, newest first
@@ -111,4 +115,43 @@ const getReports = async (req, res, next) => {
    }
 };
 
-module.exports = { uploadReportFiles, getReport, getReports };
+const getUploadedPrescriptions = async (req, res, next) => {
+   const userId = req.params.userId;
+
+   // Validate ID format
+   if (!mongoose.Types.ObjectId.isValid(userId)) {
+      const error = new HttpError("Invalid user ID format", 400);
+      return next(error);
+   }
+
+   try {
+      const reports = await LabReport.find({
+         user: userId,
+         reportName: "Prescription",
+      })
+         .populate({ path: "user", select: "firstName lastName" })
+         .populate({ path: "doctor", select: "firstName lastName" })
+         .sort({ createdAt: -1 }); // Optional: Sort by creation date, newest first
+
+      if (reports.length === 0) {
+         const error = new HttpError(
+            "No uploaded prescriptions found for this user",
+            404
+         );
+         return next(error);
+      }
+
+      res.json({ reports });
+   } catch (error) {
+      console.error("Error retrieving prescriptions:", error);
+      const err = new HttpError("Unable to retrieve prescriptions", 500);
+      return next(err);
+   }
+};
+
+module.exports = {
+   uploadReportFiles,
+   getReport,
+   getReports,
+   getUploadedPrescriptions,
+};

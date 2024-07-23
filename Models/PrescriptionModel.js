@@ -19,9 +19,7 @@ const vitalsSchema = new mongoose.Schema({
       type: String,
    },
 });
-const prescriptionDataSchema = new mongoose.Schema({
-   paths: [[String]],
-});
+
 const prescriptionSchema = new mongoose.Schema(
    {
       appointmentId: {
@@ -29,11 +27,7 @@ const prescriptionSchema = new mongoose.Schema(
          ref: "Appointment",
          required: false,
       },
-      timeSlotId: {
-         type: mongoose.Schema.Types.ObjectId,
-         ref: "TimeSlot",
-         required: false,
-      },
+
       reception: {
          type: mongoose.Schema.Types.ObjectId,
          ref: "Reception",
@@ -44,15 +38,12 @@ const prescriptionSchema = new mongoose.Schema(
          required: true,
       },
       prescriptionData: {
-         type: prescriptionDataSchema,
+         paths: [[String]],
       },
       vitals: {
          type: vitalsSchema,
       },
       isLocked: { type: Boolean, default: false },
-      previousPrescriptions: {
-         type: String,
-      },
       date: {
          type: Date,
          required: true,
@@ -64,6 +55,3 @@ const prescriptionSchema = new mongoose.Schema(
 const Prescription = mongoose.model("Prescription", prescriptionSchema);
 
 module.exports = Prescription;
-//Short hand
-//Required = date , userId,
-//Not required =reception , appointmentId, timeSlotId , reception , user , prescriptionData , , vitals,
