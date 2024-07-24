@@ -15,7 +15,7 @@ const doctorSchema = new mongoose.Schema({
       required: [true, "Please select gender"],
    },
    mobileNumber: {
-      type: Number,
+      type: String,
       required: [true, "Please enter contact information"],
       unique: true,
       trim: true,
@@ -26,11 +26,11 @@ const doctorSchema = new mongoose.Schema({
       required: [true, "Please enter specialization"],
    },
    experience: {
-      type: Number,
+      type: String,
       required: [true, "Please enter the experience in years"],
    },
    consultationFee: {
-      type: Number,
+      type: String,
       required: [true, "Please enter consultation Fee "],
    },
    qualifications: { type: String, required: true },

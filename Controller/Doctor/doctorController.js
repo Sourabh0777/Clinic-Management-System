@@ -16,6 +16,7 @@ const { commonLogin } = require("../common/CommonLogin");
 const { pictureValidate } = require("../../utils/pictureValidate");
 const { commonGetAppointmentById } = require("../common/CommonAppointment");
 const User = require("../../Models/UserModel");
+const { log } = require("console");
 
 const doctorSignup = async (req, res, next) => {
    try {
@@ -32,7 +33,6 @@ const doctorSignup = async (req, res, next) => {
          emailAddress,
          password,
       } = req.body;
-
       if (
          !firstName ||
          !lastName ||
