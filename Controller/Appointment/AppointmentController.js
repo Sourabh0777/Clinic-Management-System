@@ -134,7 +134,10 @@ const getUserPastAppointments = async (req, res) => {
       const pastAppointments = await Appointment.find({
          user: userId,
          status: "completed",
-      });
+      })
+         .populate("prescription")
+         .populate("user")
+         .populate("doctor");
 
       if (!pastAppointments || pastAppointments.length === 0) {
          return res.status(404).json({
