@@ -10,7 +10,7 @@ const createAppointment = async (req, res, next) => {
       const {
          user,
          doctor,
-         reception,
+         staff,
          appointmentDate,
          appointmentType,
          status,
@@ -58,7 +58,7 @@ const createAppointment = async (req, res, next) => {
          appointmentId, // Custom appointment ID
          user,
          doctor,
-         reception,
+         staff,
          prescription: prescriptionId,
          appointmentDate,
          appointmentType,

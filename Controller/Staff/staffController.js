@@ -1,4 +1,4 @@
-const Reception = require("../../Models/ReceptionModel");
+const Staff = require("../../Models/StaffModel");
 const HttpError = require("../../Models/http-error");
 const Prescription = require("../../Models/PrescriptionModel");
 const Appointment = require("../../Models/AppointmentModel");
@@ -8,9 +8,7 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
 const { hashPassword } = require("../../utils/hashPasswords");
-const {
-   createReceptionService,
-} = require("../../Services/Reception/ReceptionServices");
+const { createstaffService } = require("../../Services/Staff/StaffServices");
 
 const {
    nodeEnv,
@@ -28,26 +26,27 @@ const {
    commonGetDoctorScheduleByScheduleId,
 } = require("../common/CommonDoctor");
 const { commonGetAppointmentById } = require("../common/CommonAppointment");
-const receptionSignup = async (req, res, next) => {
+const staffSignup = async (req, res, next) => {
    try {
       const { firstName, lastName, emailAddress, password } = req.body;
       if (!(firstName || lastName || !emailAddress || !password)) {
          throw new HttpError("All fields are required", 400);
       }
-      await checkIfUserExists("Reception", emailAddress);
+      await checkIfUserExists("Staff", emailAddress);
       const hashedPassword = await hashPassword(password);
-      const receptionist = await createReceptionService({
+      console.log(hashedPassword);
+      const staff = await createstaffService({
          firstName,
          lastName,
          emailAddress,
          password: hashedPassword,
       });
       const values = {
-         id: receptionist.id,
-         name: receptionist.firstName + " " + receptionist.lastName,
-         email: receptionist.emailAddress,
-         operatorType: `${Reception}`,
-         password: receptionist.password,
+         id: staff.id,
+         name: staff.firstName + " " + staff.lastName,
+         email: staff.emailAddress,
+         operatorType: `Staff`,
+         password: staff.password,
       };
       const jwtToken = generateAuthToken(values);
       return res
@@ -59,10 +58,10 @@ const receptionSignup = async (req, res, next) => {
          })
          .json({
             message: "Sign up completed",
-            receptionist: {
-               firstName: receptionist.firstName,
-               lastName: receptionist.lastName,
-               emailAddress: receptionist.emailAddress,
+            staff: {
+               firstName: staff.firstName,
+               lastName: staff.lastName,
+               emailAddress: staff.emailAddress,
             },
          });
    } catch (error) {
@@ -70,14 +69,14 @@ const receptionSignup = async (req, res, next) => {
       return next(error || err);
    }
 };
-const receptionLogin = async (req, res, next) => {
+const staffLogin = async (req, res, next) => {
    try {
       const { email, password, doNotLogout } = req.body;
       const loginInput = {
          email,
          password,
          doNotLogout,
-         collectionName: "Reception",
+         collectionName: "Staff",
       };
       const login = await commonLogin(loginInput);
       if (login) {
@@ -92,13 +91,13 @@ const receptionLogin = async (req, res, next) => {
       return next(error || err);
    }
 };
-const getReceptionProfile = async (req, res, next) => {
+const getstaffProfile = async (req, res, next) => {
    try {
       const user = req.user;
       const profile = await commonGetProfile(user);
       return res.send(profile);
    } catch (error) {
-      const err = new HttpError("Unable to get Reception profile", 500);
+      const err = new HttpError("Unable to get staff profile", 500);
       return next(error || err);
    }
 };
@@ -118,7 +117,7 @@ const changeProfilePicture = async (req, res, next) => {
          const err = new HttpError(validateResult.error, 400);
          return next(err);
       }
-      const reception = await Reception.findById(user.id);
+      const staff = await staff.findById(user.id);
       const pictureId = uuidv4();
       const extension = path.extname(picture.name);
       const pictureName = pictureId + extension;
@@ -129,17 +128,17 @@ const changeProfilePicture = async (req, res, next) => {
             return next(err);
          }
       });
-      const profileUrl = "/reception/profile/picture/" + pictureName;
-      reception.profilePictureUrl = profileUrl;
+      const profileUrl = "/Staff/profile/picture/" + pictureName;
+      staff.profilePictureUrl = profileUrl;
 
-      await reception.save();
+      await staff.save();
       res.json({
          message: "File Uploaded",
-         reception,
+         staff,
       });
    } catch (error) {
       console.log(
-         "🚀 ~ file: receptionController.js:125 ~ changeProfilePicture ~ error:",
+         "🚀 ~ file: staffController.js:125 ~ changeProfilePicture ~ error:",
          error
       );
       const err = new HttpError("Upload profile picture.", 500);
@@ -204,20 +203,13 @@ const getAppointmentDetails = async (req, res, next) => {
       return next(error || err);
    }
 };
-
 const updateVitals = async (req, res, next) => {
    try {
-      const {
-         prescriptionId,
-         appointmentId,
-         timeSlotId,
-         reception,
-         vitals,
-         date,
-      } = req.body;
+      const { prescriptionId, appointmentId, timeSlotId, staff, vitals, date } =
+         req.body;
       const prescription = await Prescription.findById(prescriptionId);
       prescription.timeSlotId = timeSlotId;
-      prescription.reception = reception;
+      prescription.staff = staff;
       prescription.date = date;
       prescription.vitals = vitals;
       await prescription.save();
@@ -245,7 +237,6 @@ const getPrescriptionFileById = async (req, res, next) => {
       throw error || err;
    }
 };
-
 const cancelAppointment = async (req, res, next) => {
    try {
       const appointment = await Appointment.findById(req.params.id);
@@ -257,7 +248,6 @@ const cancelAppointment = async (req, res, next) => {
       return next(error || err);
    }
 };
-
 const createUser = async (req, res, next) => {
    try {
       const {
@@ -319,9 +309,9 @@ const searchUser = async (req, res, next) => {
 };
 
 module.exports = {
-   receptionSignup,
-   receptionLogin,
-   getReceptionProfile,
+   staffSignup,
+   staffLogin,
+   getstaffProfile,
    changeProfilePicture,
    getProfilePicture,
    getDoctorList,

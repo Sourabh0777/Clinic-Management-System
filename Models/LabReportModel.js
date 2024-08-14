@@ -9,7 +9,7 @@ const labReportSchema = new mongoose.Schema(
          index: true,
       },
       doctor: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor" },
-      reception: { type: mongoose.Schema.Types.ObjectId, ref: "Reception" },
+      staff: { type: mongoose.Schema.Types.ObjectId, ref: "staff" },
       reportName: {
          type: String,
          required: true,

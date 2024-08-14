@@ -28,9 +28,9 @@ const prescriptionSchema = new mongoose.Schema(
          required: false,
       },
 
-      reception: {
+      staff: {
          type: mongoose.Schema.Types.ObjectId,
-         ref: "Reception",
+         ref: "staff",
       },
       user: {
          type: mongoose.Schema.Types.ObjectId,

@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const {
-   receptionSignup,
-   receptionLogin,
-   getReceptionProfile,
+   staffSignup,
+   staffLogin,
+   getstaffProfile,
    changeProfilePicture,
    getProfilePicture,
    getDoctorList,
@@ -15,19 +15,19 @@ const {
    cancelAppointment,
    createUser,
    searchUser,
-} = require("../Controller/Reception/receptionController");
+} = require("../Controller/Staff/staffController");
 const { verifyIsLoggedIn } = require("../middleware/verifyAuthToken");
-const { verifyIsReception } = require("../middleware/verifyIsReception");
+const { verifyIsStaff } = require("../middleware/verifyIsStaff");
 
 // Sign up LOgin
-router.post("/signup", receptionSignup);
-router.post("/login", receptionLogin);
+router.post("/signup", staffSignup);
+router.post("/login", staffLogin);
 
-//Verify Reception Related Api
-router.use(verifyIsLoggedIn, verifyIsReception);
+//Verify staff Related Api
+router.use(verifyIsLoggedIn, verifyIsStaff);
 
-//Reception Profile Related API
-router.get("/profile", getReceptionProfile);
+//staff Profile Related API
+router.get("/profile", getstaffProfile);
 router.put("/profile/picture", changeProfilePicture);
 router.get("/profile/picture/:pictureId", getProfilePicture);
 
@@ -41,7 +41,7 @@ router.post("/vitals", updateVitals);
 router.get("/prescription/:prescriptionFile", getPrescriptionFileById);
 router.put("/cancelAppointment/:id", cancelAppointment);
 
-//Reception User/Patient Related API
+//staff User/Patient Related API
 router.post("/createUser", createUser);
 router.post("/searchUser", searchUser);
 
